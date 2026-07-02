@@ -7,7 +7,7 @@ import { Float } from 'react-native/Libraries/Types/CodegenTypes';
 export interface Profissional {
     id?: number;
     usuario?: any;
-    categorias: Categoria[];
+    categorias: number[];
     descricao: string;
     uriImagemPrincipal?: string;
     imagemPortifolios?: Portifolio[];
