@@ -20,3 +20,11 @@ export async function ObterTodos() {
   });
   return response.json();
 }
+
+export async function ObterTodosByProfissional(id: number) {
+  console.log("ObterTodos categorias por Usuario");
+  const response = await fetch(`${BASE_URL}/Categoria/ObterTodosByProfissional/${id}`, {
+    method: "GET",
+  });
+  return response.json();
+}

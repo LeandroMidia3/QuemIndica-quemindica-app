@@ -19,7 +19,7 @@ import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
-import { ObterTodos } from "../../api/CategoriaController";
+import { ObterTodos, ObterTodosByProfissional } from "../../api/CategoriaController";
 import { UsuarioSave } from '../../modelUtils/UsuarioSave';
 import { formatarData } from '../../utils/utils';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
@@ -178,8 +178,6 @@ export function CadastroForm() {
 
   const onSubmit: SubmitHandler<ProfissionalForm> = (data) => {
 
-    console.log("ENTROU: onSubmit");
-
     setValidaSenha(false);
     setValidaCategoria(false);
 
@@ -194,8 +192,6 @@ export function CadastroForm() {
     }
 
       const idUsuario = profissional?.idusuario != undefined ? profissional.idusuario : 0;      
-
-      console.log("Profissional PA: " + JSON.stringify(profissional));
 
       const newUsuario: UsuarioSave = {
         id: idUsuario,
@@ -214,8 +210,8 @@ export function CadastroForm() {
         usuario: newUsuario,
         categorias: categorias,
         descricao: data.descricao,
-        uriImagemPrincipal: '',   //TODO: VER COMO PASSAR A IMAGEM
-        imagemPortifolios: [],                                                                                                                                                                              //TODO: VER COMO PASSAR AS IMAGENS
+        uriImagemPrincipal: '',   
+        imagemPortifolios: [],  //TODO: VER COMO PASSAR AS IMAGENS
         telefone: data.telefone,
         disponibilidadeInicio: data.disponibilidadeInicio,
         disponibilidadeFim: data.disponibilidadeFim,
@@ -238,8 +234,6 @@ export function CadastroForm() {
   async function salvaProfissaoApi(item: Profissional) {
     try{
 
-      console.log("ENTROU: salvaProfissaoApi");
-
       let response: RequestResponse = {} as RequestResponse;
   
       if(item != undefined && item.id != undefined && item.id > 0){
@@ -249,14 +243,15 @@ export function CadastroForm() {
         console.log("Salvando profissional: " + JSON.stringify(item));
         response = await SalvarProfissional(item);
       }
-      console.log("response: " + JSON.stringify(response));
   
        if(response.sucess){
-        const newProfissional = response.objeto;
-         item.usuario.id = response.id;
-         saveUsuario("@usuario", newProfissional.usuario);
-         setExisteUsuario(true);
-         navigation.goBack();
+          console.log("salvaProfissaoApi ENTROU");
+          const newProfissional = response.objeto;
+          item.usuario.id = response.id;
+          console.log("newProfissional.usuario: " + JSON.stringify(newProfissional));
+          saveUsuario("@usuario", newProfissional.usuario);
+          setExisteUsuario(true);
+          navigation.goBack();
        }else{
          setModalVisible(true);
          setModalMessage(response.message);
@@ -271,28 +266,29 @@ export function CadastroForm() {
 
 
   //** CATEGORIAS **/
-  const [categorias, setCategorias] = useState([]);
+  const [categorias, setCategorias] = useState<number[]>([]);
   const [open, setOpen] = useState(false);
+  
   const [listaCategoria, setListaCategoria] = useState<CategoriaCombo[]>([]);
   useEffect(() => {
     const obterCategorias = async () => {
         try {          
+            console.log("CHAMOU obterCategorias");
            const response = await ObterTodos();
-          //  console.log("response categorias: " + JSON.stringify(response));
            formatarCategoria(response);  
         } catch (error) {
           console.log("Erro para obter as Categorias", error);
         }
       };
-      obterCategorias();
+    obterCategorias();
 
     const verificarUsuario = async () => {
       try {
+        console.log("CHAMOU verificarUsuario");
         const usuarioStorege = await getUsuario("@usuario");
         if (usuarioStorege) {
 
           const objetoProfissional: any = await ObterProfissionalByUsuario(usuarioStorege.id);
-          console.log("objetoProfissional JSON: " + JSON.stringify(objetoProfissional));
           const profissional = objetoProfissional.objeto;
           profissional.id = profissional.idprofissional;
           // profissional.usuario.id = profissional.idusuario;
@@ -311,8 +307,8 @@ export function CadastroForm() {
           setValue("disponibilidadeInicio", objetoProfissional.objeto.disponibilidadeInicio);
           setValue("disponibilidadeFim", objetoProfissional.objeto.disponibilidadeFim);
 
-          console.log("objetoProfissional JSON: " + JSON.stringify(objetoProfissional.objeto));
-          console.log("usuario JSON: " + JSON.stringify(usuarioStorege));
+          obterCategoriasByProfissional(profissional.idprofissional);
+
         }else{
           console.log("Erro ao obter usuário do storage");
         }
@@ -320,8 +316,25 @@ export function CadastroForm() {
         console.log("Erro ao obter usuário do storage:", error);
       }
     };
-
     verificarUsuario();
+
+    const obterCategoriasByProfissional = async (idProfissional: number) => {
+      try {          
+          console.log("CHAMOU obterCategoriasByUsuario");
+          if(idProfissional != null && idProfissional > 0){
+            console.log("CHAMOU DENTRO obterCategoriasByUsuario");
+            const response: any[] = await ObterTodosByProfissional(idProfissional);
+            const listaCategoriaProfissional: number[] = [];
+            response.forEach(element => {
+              listaCategoriaProfissional.push(element.idcategoria)
+            });
+            setCategorias(listaCategoriaProfissional)
+          }
+        } catch (error) {
+          console.log("Erro para obter as Categorias por usuario", error);
+        }
+    };
+    
       
   }, []);
 
@@ -332,6 +345,7 @@ export function CadastroForm() {
     });
     setListaCategoria(categoriasFormatadas);
   }
+
   //** CATEGORIAS FIM **/
   
 
