@@ -5,8 +5,8 @@ import { Portifolio } from './Portifolio';
 import { Float } from 'react-native/Libraries/Types/CodegenTypes';
 
 export interface Profissional {
-    id: number;
-    usuario: Usuario;
+    id?: number;
+    usuario?: any;
     categorias: Categoria[];
     descricao: string;
     uriImagemPrincipal?: string;
@@ -25,4 +25,5 @@ export interface Profissional {
     estado: string;
     cidade: string;
     latitude: string;
+    idusuario?: number;
 }

@@ -5,7 +5,7 @@ import { colors, globalStyles } from '../../assets/css/globalStyles';
 import type { RootStackParamList } from "../routes/types";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import { RequestResponse } from '../../modelUtils/RequestResponse';
-import { LogarUsuario } from "../../api/cadastroUsuario";
+import { LogarUsuario } from "../../api/UsuarioController";
 import useStorege from '../../hooks/useStorege';
 import { Usuario } from '../../model/Usuario';
 import { UsuarioSave } from '../../modelUtils/UsuarioSave';
