@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, FlatList, KeyboardAvoidingView, Platform, ImageSourcePropType } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, FlatList, KeyboardAvoidingView, Platform, ImageSourcePropType, Modal } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useNavigation } from '@react-navigation/native';
 import { TextInputMask } from 'react-native-masked-text';
@@ -18,14 +18,15 @@ import { Status } from '../../components/enum/Status';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-
-
-interface UsuarioForm {
-  nome: string;
-  email: string;
-  senha: string;
-  confirmaSenha: string;
-}
+import { useFocusEffect } from '@react-navigation/native';
+import { ObterTodos } from "../../api/CategoriaController";
+import { UsuarioSave } from '../../modelUtils/UsuarioSave';
+import { formatarData } from '../../utils/utils';
+import { RequestResponse } from '../../modelUtils/RequestResponse';
+import { SalvarProfissional, UpdateProfissional, ObterProfissionalByUsuario } from "../../api/ProfissionalController";
+import useStorege from '../../hooks/useStorege';
+import { useUserStore } from '../../utils/userStore';
+import { ModalMensagem } from '../../components/modalMensagem';
 
 
 interface ProfissionalForm {
@@ -63,6 +64,11 @@ const schema = Yup.object().shape({
   estado: Yup.string().required('Obrigatório'),
 });
 
+
+interface CategoriaCombo {
+  value: number;
+  label: string;
+};
 
 export function CadastroForm() {
 
@@ -104,28 +110,10 @@ export function CadastroForm() {
   // const[listaPortifolio, setListaPortifolio] = useState<Portifolio[]>([]);
   const[listaPortifolio, setListaPortifolio] = useState<any[]>([]);
 
-  const [open, setOpen] = useState(false);
-  const [listaCategoria, setListaCategoria] = useState([
-    {label: 'Eletricistas', value: 1},
-    {label: 'Encanadores', value: 2},
-    {label: 'Pintores', value: 3},
-    {label: 'Costureiras', value: 5},
-    {label: 'Jardineiros', value: 6},
-    {label: 'Pedreiros', value: 7},
-    {label: 'Manicures', value: 8},
-    {label: 'Fotógrafos', value: 9},
-    {label: 'Limpeza residencial', value: 10},
-    {label: 'Jardinagem', value: 11},
-    {label: 'Paisagismo', value: 12},
-    {label: 'Pintura', value: 13},
-    {label: 'Gesseiro', value: 14},
-    {label: 'Carpintaria', value: 15},
-    {label: 'Chaveiro', value: 16},
-    {label: 'Dedetização', value: 17},
-    {label: 'Cabeleireiro', value: 18},
-    {label: 'Yoga', value: 19},
-    {label: 'Idiomas', value: 20},
-  ]);
+  const { saveUsuario, getUsuario }  = useStorege();
+  const { setExisteUsuario } = useUserStore();
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
   
   const navigation = useNavigation();
 
@@ -171,23 +159,26 @@ export function CadastroForm() {
 
   };
 
-  const { control, handleSubmit, formState: { errors } } = useForm<ProfissionalForm>({
+  const { control, handleSubmit, setValue, formState: { errors } } = useForm<ProfissionalForm>({
     resolver: yupResolver(schema),
   });
 
   function preencheProfissao(items: number[]): string{
-    const categoriasStrList: string[] = [];
-    const categoriaObj = listaCategoria.filter(cat => items.includes(cat.value));
-    categoriaObj.forEach(element => {
-      categoriasStrList.push(element.label);
-    });
-    return categoriasStrList.join(", ");
+     const categoriasStrList: string[] = [];
+     const categoriaObj = listaCategoria.filter(cat => items.includes(cat.value));
+     categoriaObj.forEach(element => {
+       categoriasStrList.push(element.label);
+     });
+     return categoriasStrList.join(", ");
+    return "";
   }
 
   const[validaSenha, setValidaSenha] = useState(false);
   const[validaCategoria, setValidaCategoria] = useState(false);
 
   const onSubmit: SubmitHandler<ProfissionalForm> = (data) => {
+
+    console.log("ENTROU: onSubmit");
 
     setValidaSenha(false);
     setValidaCategoria(false);
@@ -202,13 +193,15 @@ export function CadastroForm() {
       return;
     }
 
-    const idUsuario = profissional?.usuario?.id != undefined ? profissional.usuario.id : 0;      
+      const idUsuario = profissional?.idusuario != undefined ? profissional.idusuario : 0;      
 
-      const newUsuario: Usuario = {
+      console.log("Profissional PA: " + JSON.stringify(profissional));
+
+      const newUsuario: UsuarioSave = {
         id: idUsuario,
         nome: data.nome,
         email: data.email,
-        dataCadastro: new Date(),
+        dataCadastro: formatarData(new Date()),
         perfil: Perfil.Profissional,
         senha: data.senha,
         status: Status.Ativo,
@@ -221,7 +214,7 @@ export function CadastroForm() {
         usuario: newUsuario,
         categorias: categorias,
         descricao: data.descricao,
-        uriImagemPrincipal: "https://media.istockphoto.com/id/1252338682/pt/foto/female-chef-is-preparing-a-flamb%C3%A9-specialty.jpg?s=612x612&w=0&k=20&c=98zSrE1RIcKycUAvbZsKmOw1QjAIPZmF0JqrqwTYa1w=",   //TODO: VER COMO PASSAR A IMAGEM
+        uriImagemPrincipal: '',   //TODO: VER COMO PASSAR A IMAGEM
         imagemPortifolios: [],                                                                                                                                                                              //TODO: VER COMO PASSAR AS IMAGENS
         telefone: data.telefone,
         disponibilidadeInicio: data.disponibilidadeInicio,
@@ -238,10 +231,109 @@ export function CadastroForm() {
         latitude: "",
       };
 
-      console.log('Dados enviados:', newProfissional);
+      salvaProfissaoApi(newProfissional);
   };
 
+
+  async function salvaProfissaoApi(item: Profissional) {
+    try{
+
+      console.log("ENTROU: salvaProfissaoApi");
+
+      let response: RequestResponse = {} as RequestResponse;
+  
+      if(item != undefined && item.id != undefined && item.id > 0){
+        console.log("Atualizando profissional: " + JSON.stringify(item));
+        response = await UpdateProfissional(item.id, item);
+      }else{
+        console.log("Salvando profissional: " + JSON.stringify(item));
+        response = await SalvarProfissional(item);
+      }
+      console.log("response: " + JSON.stringify(response));
+  
+       if(response.sucess){
+        const newProfissional = response.objeto;
+         item.usuario.id = response.id;
+         saveUsuario("@usuario", newProfissional.usuario);
+         setExisteUsuario(true);
+         navigation.goBack();
+       }else{
+         setModalVisible(true);
+         setModalMessage(response.message);
+       }
+
+      }catch(error){
+          console.log("ERROR: " + error);
+      }
+  
+    }
+
+
+
+  //** CATEGORIAS **/
   const [categorias, setCategorias] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [listaCategoria, setListaCategoria] = useState<CategoriaCombo[]>([]);
+  useEffect(() => {
+    const obterCategorias = async () => {
+        try {          
+           const response = await ObterTodos();
+          //  console.log("response categorias: " + JSON.stringify(response));
+           formatarCategoria(response);  
+        } catch (error) {
+          console.log("Erro para obter as Categorias", error);
+        }
+      };
+      obterCategorias();
+
+    const verificarUsuario = async () => {
+      try {
+        const usuarioStorege = await getUsuario("@usuario");
+        if (usuarioStorege) {
+
+          const objetoProfissional: any = await ObterProfissionalByUsuario(usuarioStorege.id);
+          console.log("objetoProfissional JSON: " + JSON.stringify(objetoProfissional));
+          const profissional = objetoProfissional.objeto;
+          profissional.id = profissional.idprofissional;
+          // profissional.usuario.id = profissional.idusuario;
+          setProfissional(profissional);
+
+          setValue("nome", usuarioStorege.nome);
+          setValue("email", usuarioStorege.email);
+          setValue("servico", objetoProfissional.objeto.servico);
+          setValue("rua", objetoProfissional.objeto.rua);
+          setValue("numero", objetoProfissional.objeto.numero);
+          setValue("bairro", objetoProfissional.objeto.bairro);
+          setValue("cidade", objetoProfissional.objeto.cidade);
+          setValue("telefone", objetoProfissional.objeto.telefone);
+          setValue("estado", objetoProfissional.objeto.estado);
+          setValue("descricao", objetoProfissional.objeto.descricao);
+          setValue("disponibilidadeInicio", objetoProfissional.objeto.disponibilidadeInicio);
+          setValue("disponibilidadeFim", objetoProfissional.objeto.disponibilidadeFim);
+
+          console.log("objetoProfissional JSON: " + JSON.stringify(objetoProfissional.objeto));
+          console.log("usuario JSON: " + JSON.stringify(usuarioStorege));
+        }else{
+          console.log("Erro ao obter usuário do storage");
+        }
+      } catch (error) {
+        console.log("Erro ao obter usuário do storage:", error);
+      }
+    };
+
+    verificarUsuario();
+      
+  }, []);
+
+  function formatarCategoria(categorias: any[]){
+    const categoriasFormatadas: any[] = [];
+    categorias.forEach(element => {
+      categoriasFormatadas.push({label: element.nome, value: element.idcategoria});
+    });
+    setListaCategoria(categoriasFormatadas);
+  }
+  //** CATEGORIAS FIM **/
+  
 
   const formItems = [
     { key: 'logo', render: () => (
@@ -443,7 +535,7 @@ export function CadastroForm() {
                     value={value}
                     placeholderTextColor={colors.placeholdertext}
                     onChangeText={onChange}
-                    maxLength={150}
+                    maxLength={10}
                   />
                 <View style={styles.msgErro}>{errors.numero && <Text style={styles.textErro}>{errors.numero.message}</Text>}</View>
               </>
@@ -660,10 +752,13 @@ export function CadastroForm() {
   return (
 
 
-
+    <View style={styles.container}> 
+        
+    <Modal visible={modalVisible} animationType='fade' transparent={true}>
+        <ModalMensagem handleClose={() => setModalVisible(false)} type={'error'} message={modalMessage} ></ModalMensagem>
+    </Modal>
 
     <FlatList
-      style={styles.container}
       data={formItems}
       renderItem={({ item }) => item.render()}
       keyExtractor={(item) => item.key}
@@ -672,7 +767,7 @@ export function CadastroForm() {
       keyboardDismissMode="on-drag"
     />
 
-
+   </View>
 
 
   );

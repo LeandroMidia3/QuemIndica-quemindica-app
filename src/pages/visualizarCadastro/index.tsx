@@ -5,11 +5,12 @@ import { useNavigation } from '@react-navigation/native';
 import useStorege from '../../hooks/useStorege';
 import { Usuario } from '../../model/Usuario';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
-import { ObterUsuario } from "../../api/cadastroUsuario";
+import { ObterUsuario } from "../../api/UsuarioController";
 import type { RootStackParamList } from "../routes/types";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import { useUserStore } from '../../utils/userStore';
-  import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
+import { Perfil } from '../../components/enum/Perfil';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
 
@@ -64,6 +65,14 @@ useFocusEffect(
       }
     }
 
+    function handlerEditarPerfil(){
+      if(usuario?.perfil == Perfil.Cliente){
+        navigation.navigate('CadastroUsuarioForm');
+      }else{
+        navigation.navigate('CadastroForm');
+      }
+    }
+
 
   return (
     <ScrollView style={styles.container}>
@@ -91,7 +100,7 @@ useFocusEffect(
         <Text style={styles.value}>(11) 98765-4321</Text>
       </View> */}
 
-      <TouchableOpacity style={styles.buttonGray} onPress={() => navigation.navigate('CadastroUsuarioForm')}>
+      <TouchableOpacity style={styles.buttonGray} onPress={handlerEditarPerfil}>
         <Text style={styles.buttonText}>Editar Perfil</Text>
       </TouchableOpacity>
 

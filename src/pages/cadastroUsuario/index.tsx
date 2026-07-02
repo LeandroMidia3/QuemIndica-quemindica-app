@@ -13,7 +13,7 @@ import { Status } from '../../components/enum/Status';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { SalvarUsuario, UpdateUsuario } from "../../api/cadastroUsuario";
+import { SalvarUsuario, UpdateUsuario } from "../../api/UsuarioController";
 import { formatarData } from "../../utils/utils";
 import { UsuarioSave } from '../../modelUtils/UsuarioSave';
 import { ModalMensagem } from '../../components/modalMensagem';
@@ -88,12 +88,9 @@ export function CadastroUsuarioForm() {
       response = await SalvarUsuario(usuarioSave);
     }
 
-    console.log("Response 1: " + JSON.stringify(response));
-
      if(response.sucess){
        usuarioSave.id = response.id;
        saveUsuario("@usuario", usuarioSave);
-       console.log("Response 2: " + JSON.stringify(usuarioSave));
        setExisteUsuario(true);
        navigation.goBack();
      }else{
@@ -122,7 +119,7 @@ export function CadastroUsuarioForm() {
     };
 
     verificarUsuario();
-  }, []); // [] garante que roda só uma vez ao montar a tela
+  }, []);
 
    useEffect(() => {
     // if (usuario) {
