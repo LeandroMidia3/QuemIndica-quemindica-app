@@ -23,7 +23,7 @@ import { ObterTodos, ObterTodosByProfissional } from "../../api/CategoriaControl
 import { UsuarioSave } from '../../modelUtils/UsuarioSave';
 import { formatarData } from '../../utils/utils';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
-import { SalvarProfissional, UpdateProfissional, ObterProfissionalByUsuario } from "../../api/ProfissionalController";
+import { SalvarProfissional, UpdateProfissional, ObterProfissionalByUsuario, UpdateImagem } from "../../api/ProfissionalController";
 import useStorege from '../../hooks/useStorege';
 import { useUserStore } from '../../utils/userStore';
 import { ModalMensagem } from '../../components/modalMensagem';
@@ -70,6 +70,8 @@ interface CategoriaCombo {
   label: string;
 };
 
+const fs = require('fs');
+
 export function CadastroForm() {
 
   const [openCidade, setOpenCidade] = useState(false);
@@ -105,7 +107,7 @@ export function CadastroForm() {
 
   const[profissional, setProfissional] = useState<Profissional>();
 
-  const[fotoPrincipal, setFotoPrincipal] = useState(null);
+  const[fotoPrincipal, setFotoPrincipal] = useState<any>(null);
 
   // const[listaPortifolio, setListaPortifolio] = useState<Portifolio[]>([]);
   const[listaPortifolio, setListaPortifolio] = useState<any[]>([]);
@@ -176,7 +178,7 @@ export function CadastroForm() {
   const[validaSenha, setValidaSenha] = useState(false);
   const[validaCategoria, setValidaCategoria] = useState(false);
 
-  const onSubmit: SubmitHandler<ProfissionalForm> = (data) => {
+  const onSubmit: SubmitHandler<ProfissionalForm> = async (data) => {
 
     setValidaSenha(false);
     setValidaCategoria(false);
@@ -205,7 +207,7 @@ export function CadastroForm() {
 
       const idProfissional = profissional?.id != undefined ? profissional.id : 0;
 
-      const newProfissional: Profissional = {
+      let newProfissional: Profissional = {
         id: idProfissional,
         usuario: newUsuario,
         categorias: categorias,
@@ -226,10 +228,26 @@ export function CadastroForm() {
         cidade: data.cidade,
         latitude: "",
       };
-
+    
       salvaProfissaoApi(newProfissional);
   };
 
+
+  async function preencheImagemPrincipal(item: Profissional) {
+
+    const extensao = fotoPrincipal.originalPath.slice(-3);
+    const nomeImagem = `foto_${item.usuario.id}${item.id}.${extensao}`;
+
+      const formData = new FormData();
+      formData.append('imagem', {
+        uri: fotoPrincipal.uri,
+        type: `image/${extensao}`,
+        name: nomeImagem,
+      });
+
+      const response2 = await UpdateImagem(formData);
+      console.log("response2: " + JSON.stringify(response2));
+  }
 
   async function salvaProfissaoApi(item: Profissional) {
     try{
@@ -251,6 +269,11 @@ export function CadastroForm() {
           console.log("newProfissional.usuario: " + JSON.stringify(newProfissional));
           saveUsuario("@usuario", newProfissional.usuario);
           setExisteUsuario(true);
+
+          if(fotoPrincipal != null && fotoPrincipal != undefined){
+            await preencheImagemPrincipal(newProfissional);
+          }
+          
           navigation.goBack();
        }else{
          setModalVisible(true);
@@ -262,6 +285,10 @@ export function CadastroForm() {
       }
   
     }
+
+    
+
+    
 
 
 
