@@ -37,7 +37,12 @@ export function Login() {
     setModalVisible(false);
     setModalMessage('');
     const usuarioLogar: UsuarioLogin = {email: email, senha: senha};
+
+    console.log("Request: " + JSON.stringify(usuarioLogar));
+
     const response: RequestResponse = await LogarUsuario(usuarioLogar);
+
+    console.log("response: " + JSON.stringify(response));
 
     console.log("response Login: " + JSON.stringify(response));
 
@@ -77,6 +82,7 @@ export function Login() {
         keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}

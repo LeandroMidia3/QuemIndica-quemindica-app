@@ -40,4 +40,11 @@ export async function UpdateProfissional(id: number, profissional: any) {
    return response.json();
 }
 
-
+export async function UpdateImagem(imagem: FormData) {
+  console.log("UpdateImagem: " + JSON.stringify(imagem));
+   const response = await fetch(`${BASE_URL}/Profissional/UpdateImagem`, {
+     method: 'PUT',
+     body: imagem
+   });
+   return response.json();
+}

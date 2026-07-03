@@ -38,22 +38,24 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 
 ///TODO:
 
+
+1 - Ver como levar a imagem do aplicativo para a pasta no servidor  pasta "IdUsuario/foto_1.jpg", uma pasta pro usuário no servidor máximo 3 fotos de Portifólio
+
+
+
+
+
 1 - Criar tela de Cadastro de Profissional preenchendo o objeto                 -- OK
 1.2 - Aparecer foto do Portifólio assim que adicionar                           --
-
-
 
 2 - Criar tela de Cadastro de Usuario preenchendo o objeto                      --OK
 3 - Ver como validar os campos e validar os campos obrigatórios                 --OK
 
 3 - Criar a tela de login gravando o usuário no "Dispositivo" para consultas futuras
-4 - Criar as chamadas da API passando o bojeto Mockado
-5 - Levar o Objeto/Id do objeto para a tela de detalhe
-6 - Ver como levar a imagem do aplicativo para a pasta no servidor  pasta "IdUsuario/foto_1.jpg", uma pasta pro usuário no servidor máximo 3 fotos de Portifólio
+
 
 7 - Criar as APIs no projeto API
-7.1 - Criar API de login
-7.1.1 - Criar hash para gravar senha do usuário 0 API
+7.1.1 - Criar hash para gravar "SENHA" do usuário 0 API
 
 8 - Criar na API uma site Admin para cadastro e relatórios
 9 - Ver onde pegar as imagens de profissões nas Categorias, ou então criar pela IA e ir subindo para o Servidor.
@@ -62,6 +64,8 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 11 - Botão de "Esqueci senha"
 
 12 - Preloader
+
+13 - 
 
 
 
