@@ -2,9 +2,7 @@ import Config from "react-native-config";
 import { Usuario } from "../model/Usuario";
 import { Profissional } from "../model/Profissional";
 import { UsuarioSave } from "../modelUtils/UsuarioSave";
-
-const BASE_URL = "http://localhost:3000"; // ou IP da máquina
-
+import { BASE_URL } from '@env'; 
 
 export async function SalvarProfissional(profissional: Profissional) {
    const response = await fetch(`${BASE_URL}/Profissional/Cadastrar`, {
@@ -47,4 +45,11 @@ export async function UpdateImagem(imagem: FormData) {
      body: imagem
    });
    return response.json();
+}
+
+export async function deleteFoto(id?: number | 0) {
+  const response = await fetch(`${BASE_URL}/Profissional/RemoverImagem/${id}`, {
+    method: "DELETE",
+  });
+  return response.json();
 }

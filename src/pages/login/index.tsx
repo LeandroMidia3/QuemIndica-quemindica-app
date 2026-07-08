@@ -32,7 +32,7 @@ export function Login() {
   const[email, setEmail] = useState<string>('');
   const[senha, setSenha] = useState<string>('');
 
-   async function handleLogin() {
+  async function handleLogin() {
     
     setModalVisible(false);
     setModalMessage('');
@@ -58,6 +58,9 @@ export function Login() {
     }
 
   }
+
+
+  
 
   
   return (

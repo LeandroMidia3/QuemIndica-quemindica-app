@@ -23,10 +23,12 @@ import { ObterTodos, ObterTodosByProfissional } from "../../api/CategoriaControl
 import { UsuarioSave } from '../../modelUtils/UsuarioSave';
 import { formatarData } from '../../utils/utils';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
-import { SalvarProfissional, UpdateProfissional, ObterProfissionalByUsuario, UpdateImagem } from "../../api/ProfissionalController";
+import { SalvarProfissional, UpdateProfissional, ObterProfissionalByUsuario, UpdateImagem, deleteFoto } from "../../api/ProfissionalController";
 import useStorege from '../../hooks/useStorege';
 import { useUserStore } from '../../utils/userStore';
 import { ModalMensagem } from '../../components/modalMensagem';
+import { BASE_URL } from '@env'; 
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
 interface ProfissionalForm {
@@ -69,8 +71,6 @@ interface CategoriaCombo {
   value: number;
   label: string;
 };
-
-const fs = require('fs');
 
 export function CadastroForm() {
 
@@ -232,26 +232,9 @@ export function CadastroForm() {
       salvaProfissaoApi(newProfissional);
   };
 
-
-  async function preencheImagemPrincipal(item: Profissional) {
-
-    const extensao = fotoPrincipal.originalPath.slice(-3);
-    const nomeImagem = `foto_${item.usuario.id}${item.id}.${extensao}`;
-
-      const formData = new FormData();
-      formData.append('imagem', {
-        uri: fotoPrincipal.uri,
-        type: `image/${extensao}`,
-        name: nomeImagem,
-      });
-
-      const response2 = await UpdateImagem(formData);
-      console.log("response2: " + JSON.stringify(response2));
-  }
-
   async function salvaProfissaoApi(item: Profissional) {
     try{
-
+      
       let response: RequestResponse = {} as RequestResponse;
   
       if(item != undefined && item.id != undefined && item.id > 0){
@@ -283,14 +266,27 @@ export function CadastroForm() {
       }catch(error){
           console.log("ERROR: " + error);
       }
-  
-    }
+  }
+
+
+  async function preencheImagemPrincipal(item: Profissional) {
+
+    const extensao = fotoPrincipal.originalPath.slice(-3);
+    const nomeImagem = `foto_${item.usuario.id}${item.id}.${extensao}`;
+
+      const formData = new FormData();
+      formData.append('imagem', {
+        uri: fotoPrincipal.uri,
+        type: `image/${extensao}`,
+        name: nomeImagem,
+      });
+      formData.append("id", item.id);
+
+      const response = await UpdateImagem(formData);
+      console.log("response: " + JSON.stringify(response));
+  }
 
     
-
-    
-
-
 
   //** CATEGORIAS **/
   const [categorias, setCategorias] = useState<number[]>([]);
@@ -300,7 +296,6 @@ export function CadastroForm() {
   useEffect(() => {
     const obterCategorias = async () => {
         try {          
-            console.log("CHAMOU obterCategorias");
            const response = await ObterTodos();
            formatarCategoria(response);  
         } catch (error) {
@@ -311,7 +306,6 @@ export function CadastroForm() {
 
     const verificarUsuario = async () => {
       try {
-        console.log("CHAMOU verificarUsuario");
         const usuarioStorege = await getUsuario("@usuario");
         if (usuarioStorege) {
 
@@ -320,6 +314,8 @@ export function CadastroForm() {
           profissional.id = profissional.idprofissional;
           // profissional.usuario.id = profissional.idusuario;
           setProfissional(profissional);
+
+          console.log("PEGOU USUARIO: " + JSON.stringify(objetoProfissional));
 
           setValue("nome", usuarioStorege.nome);
           setValue("email", usuarioStorege.email);
@@ -347,9 +343,7 @@ export function CadastroForm() {
 
     const obterCategoriasByProfissional = async (idProfissional: number) => {
       try {          
-          console.log("CHAMOU obterCategoriasByUsuario");
           if(idProfissional != null && idProfissional > 0){
-            console.log("CHAMOU DENTRO obterCategoriasByUsuario");
             const response: any[] = await ObterTodosByProfissional(idProfissional);
             const listaCategoriaProfissional: number[] = [];
             response.forEach(element => {
@@ -376,6 +370,14 @@ export function CadastroForm() {
   //** CATEGORIAS FIM **/
   
 
+  async function excluirFoto(){
+    if(profissional != null && profissional != undefined){
+      console.log("excluirFoto: " + profissional.id);
+      const response = await deleteFoto(profissional.id);
+      console.log("EXCLUIR FOTO: " + JSON.stringify(response));
+    }
+  }
+
   const formItems = [
     { key: 'logo', render: () => (
       <View style={styles.header}>
@@ -390,15 +392,34 @@ export function CadastroForm() {
     </TouchableOpacity>
 
     {fotoPrincipal && 
-        <View style={styles.fotoPrincipal}>
-            {fotoPrincipal &&
+      <View style={styles.fotoPrincipal}>
+          {fotoPrincipal &&
             <Image
             source={fotoPrincipal}
             style={styles.preview}
             />
+          }
+      </View>
     }
+
+      <View style={styles.fotoPrincipal}>
+        {profissional?.uriImagemPrincipal && !fotoPrincipal &&
+            <Image
+            source={{uri: `${BASE_URL}/imagens/${profissional?.uriImagemPrincipal}?t=${Date.now()}`}}
+            style={styles.preview}
+            />
+        }
         </View>
-    }
+
+        {profissional?.uriImagemPrincipal && !fotoPrincipal &&
+            <View style={styles.excluifoto}>
+                <TouchableOpacity style={[styles.buttonremover, styles.cancel]} onPress={excluirFoto}>
+                    <Text style={styles.buttonText}><Icon name="delete" size={17} color="#FFF" />  Apagar</Text>
+                </TouchableOpacity>
+            </View>
+        }
+
+
     
     </View>
     )},
@@ -489,33 +510,28 @@ export function CadastroForm() {
       />
 
     )},
-    { key: 'portfolio', render: () => (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.photoButton} onPress={escolherImagemPortifolio}>
-        <Text style={styles.photoText}>Adicionar Imagem ao Portfólio</Text>
-      </TouchableOpacity>
-
-          <FlatList
-            style={styles.container}
-            data={listaPortifolio}
-            renderItem={({ item }) => 
-                  <View style={styles.fotoPortifolio}>
-                      <Image
-                          source={{ uri: item.uri }}
-                          style={styles.preview}
-                      />
-                  </View>    
-              }
-              // keyExtractor={item => String(item.id)}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-          />
-        
-
-    </View>
-
-
-    )},
+    // { key: 'portfolio', render: () => (
+    // <View style={styles.container}>
+    //   <TouchableOpacity style={styles.photoButton} onPress={escolherImagemPortifolio}>
+    //     <Text style={styles.photoText}>Adicionar Imagem ao Portfólio</Text>
+    //   </TouchableOpacity>
+    //       <FlatList
+    //         style={styles.container}
+    //         data={listaPortifolio}
+    //         renderItem={({ item }) => 
+    //               <View style={styles.fotoPortifolio}>
+    //                   <Image
+    //                       source={{ uri: item.uri }}
+    //                       style={styles.preview}
+    //                   />
+    //               </View>    
+    //           }
+    //           // keyExtractor={item => String(item.id)}
+    //           horizontal
+    //           showsHorizontalScrollIndicator={false}
+    //       />
+    // </View>
+    // )},
     { key: 'telefone', render: () => (
       <Controller
         control={control}
@@ -926,5 +942,17 @@ categoryCard: {
   },
   msgErro: {
     marginBottom: 15,
+  },
+  excluifoto: {
+    paddingTop: 20,
+    padding: 20,
+    alignItems: 'center',
+  },
+  buttonremover: {
+    padding: 8,
+    width: '80%',
+    borderRadius: 6,
+    alignItems: 'center',
+    marginHorizontal: 4,
   },
 });
