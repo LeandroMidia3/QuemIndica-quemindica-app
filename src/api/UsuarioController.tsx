@@ -1,9 +1,7 @@
 import Config from "react-native-config";
 import { Usuario } from "../model/Usuario";
 import { UsuarioSave } from "../modelUtils/UsuarioSave";
-
-// export const BASE_URL = Config.BASE_URL;
-const BASE_URL = "http://localhost:3000"; // ou IP da máquina
+import { BASE_URL } from '@env'; 
 
 
 export async function SalvarUsuario(usuario: UsuarioSave) {

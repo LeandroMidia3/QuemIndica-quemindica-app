@@ -2,8 +2,7 @@ import Config from "react-native-config";
 import { Usuario } from "../model/Usuario";
 import { Profissional } from "../model/Profissional";
 import { UsuarioSave } from "../modelUtils/UsuarioSave";
-
-const BASE_URL = "http://localhost:3000"; // ou IP da máquina
+import { BASE_URL } from '@env'; 
 
 export async function ObterCategoria(id: number) {
   console.log("ObterCategoria id: " + id);
