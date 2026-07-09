@@ -65,7 +65,7 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 
 12 - Preloader
 
-13 - 
-
+13 - Colocar contador para a quantidade de vezes que clicaram no Perfil
+14 - Gravar hash para senha ou usar uma outra forma para segurança
 
 

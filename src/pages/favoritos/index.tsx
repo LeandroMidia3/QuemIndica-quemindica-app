@@ -12,7 +12,7 @@ import { Portifolio } from '../../model/Portifolio';
 import { useUserStore } from '../../utils/userStore';
 import { useFocusEffect } from '@react-navigation/native';
 import useStorege from '../../hooks/useStorege';
-import { ObterProfissionalCard } from '../../api/ProfissionalController';
+import { ObterProfissionalCard, ObterByFavoritosByUsuario } from '../../api/ProfissionalController';
 import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
  
@@ -44,15 +44,14 @@ export function Favoritos() {
 
       const obterProfissioaisCard = async () => {
         try {
-          const response: RequestResponse = await ObterProfissionalCard();
+          const usuarioStorege = await getUsuario("@usuario");
+          const response: RequestResponse = await ObterByFavoritosByUsuario(usuarioStorege?.id || 0);
 
           if (response.sucess) {
 
             const listaObjeto: ProfissionalCard[] = response.objeto;
             setListaProfissionalCard(listaObjeto);
 
-            console.log("listaObjeto: " + JSON.stringify(listaObjeto))
-                         
             }else{
               console.log("Erro API: " + response.message);
             }

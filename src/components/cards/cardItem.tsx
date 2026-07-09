@@ -9,7 +9,7 @@ import type { RootStackParamList } from "../../pages/routes/types";
 import { colors } from '../../assets/css/globalStyles';
 import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
 import { BASE_URL } from '@env'; 
-import { formataTelefone } from '../../utils/utils';
+import { openWhatsApp } from '../../utils/utils';
 
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
@@ -21,22 +21,9 @@ type CardItemProps = {
 
 const sizeImageButton = 20;
 
-
 export function CardItem({ item, remover }: CardItemProps) {
 
  const navigation = useNavigation<NavigationProp>();
-
-
-
- const openWhatsApp = () => {
-  const phoneNumber = formataTelefone(item.telefone);
-  const message = 'Olá, vi seu nome no QuemIndica e fiquei interessado no seu serviço, como podemos proceder?!';
-  const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-  Linking.openURL(url).catch(() => {
-    console.log('Não foi possível abrir o WhatsApp');
-  });
-};
 
   return (
 
@@ -57,9 +44,10 @@ export function CardItem({ item, remover }: CardItemProps) {
 
         <View style={styles.actions}>
 
-          <TouchableOpacity style={[styles.whatsapp, styles.buttons]} onPress={openWhatsApp}>
-            <Icon name="whatsapp" size={sizeImageButton} color="#FFF" />
-          </TouchableOpacity>
+        <TouchableOpacity style={[styles.whatsapp, styles.buttons]} onPress={() => openWhatsApp(item.telefone)}>
+          <Icon name="whatsapp" size={sizeImageButton} color="#FFF" />
+        </TouchableOpacity>
+
 
           {remover && (
           <TouchableOpacity style={[styles.remover, styles.buttons]}>
@@ -67,10 +55,12 @@ export function CardItem({ item, remover }: CardItemProps) {
           </TouchableOpacity>
           )}
 
-          <TouchableOpacity style={[styles.verPerfil, styles.buttons]} onPress={() => navigation.navigate('PerfilProfissional')}>
-            {/* <Text style={styles.buttonText}>Ver Perfil</Text> */}
-            <Icon name="user" size={sizeImageButton} color="#FFF" />
-          </TouchableOpacity>
+      <TouchableOpacity 
+        style={[styles.verPerfil, styles.buttons]} 
+        onPress={() => navigation.navigate('PerfilProfissional', { id: item.id})}>
+        <Icon name="user" size={sizeImageButton} color="#FFF" />
+      </TouchableOpacity>
+
 
         </View>
       </View>

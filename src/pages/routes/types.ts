@@ -1,7 +1,7 @@
 export type RootStackParamList = {
   Tabs: undefined;
   CadastroForm: undefined;
-  PerfilProfissional: undefined;
+  PerfilProfissional: { id: number };
   CadastroUsuarioForm: undefined;
   VisualizarCadastro: undefined;
   Login: undefined;
