@@ -7,6 +7,6 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "src/components/modalConfirmacao/index.js"],
   "exclude": ["**/node_modules", "**/Pods"]
 }

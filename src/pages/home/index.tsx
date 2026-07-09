@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, ScrollView, FlatList } from 'react-native';
 import { CardItem } from '../../components/cards/cardItem';
 import { colors, globalStyles } from '../../assets/css/globalStyles';
@@ -11,8 +11,12 @@ import { Portifolio } from '../../model/Portifolio';
 import { useUserStore } from '../../utils/userStore';
 import { useFocusEffect } from '@react-navigation/native';
 import useStorege from '../../hooks/useStorege';
+import { ObterProfissionalCard } from '../../api/ProfissionalController';
+import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
+import { RequestResponse } from '../../modelUtils/RequestResponse';
 
 
+//MOCK INICIO
 const categorias = [
   {
     id: '1',
@@ -56,28 +60,6 @@ const categorias = [
     },
 ];
 
-//MOCK INICIO
-
-const usuario: Usuario = {
-  id: 1,
-  nome: "Maria Thereza",
-  dataCadastro: new Date(),
-  perfil: Perfil.Profissional,
-  senha: "senhaSegura",
-  status: Status.Ativo,
-  email: ""
-};
-
-const usuario2: Usuario = {
-  id: 2,
-  nome: "Roberto Miranda",
-  dataCadastro: new Date(),
-  perfil: Perfil.Profissional,
-  senha: "senhaSegura",
-  status: Status.Ativo,
-  email: "",
-};
-
 const listaPortfolio: Portifolio[] = [
   {id: 1, uri: "https://media.istockphoto.com/id/672022974/pt/foto/fresh-grilled-dorade-rose.jpg?s=1024x1024&w=is&k=20&c=oDcTXprCLWbRudU4i7eSLdvFsdaH9VmvFdcVNKq_NUk="},
   {id: 2, uri: "https://media.istockphoto.com/id/1140296796/pt/foto/baked-dorado-with-vegetables-and-green-sauce-view-from-above.jpg?s=612x612&w=0&k=20&c=ztvlqHXYuX5fDsi_sRzBR-j1ogbv5OYBiVmPj53ssLY="},
@@ -86,62 +68,13 @@ const listaPortfolio: Portifolio[] = [
   {id: 5, uri: "https://media.istockphoto.com/id/892159736/pt/foto/festive-table-decoration.jpg?s=612x612&w=0&k=20&c=LSV8Q19cG-qQZfUoOB9OENePe9BV7sKQpwuM5ubrkOg="},
 ];
 
-const profissional: Profissional = {
-id: 1,
-usuario: usuario,
-categorias: [],
-descricao: "Mais de 10 anos de experiência combinando várias viagens estudando divérsas culinárias mundiais",
-uriImagemPrincipal: "https://media.istockphoto.com/id/1252338682/pt/foto/female-chef-is-preparing-a-flamb%C3%A9-specialty.jpg?s=612x612&w=0&k=20&c=98zSrE1RIcKycUAvbZsKmOw1QjAIPZmF0JqrqwTYa1w=",
-imagemPortifolios: listaPortfolio,
-telefone: "(73) 98458-6635",
-disponibilidadeInicio: "08:00",
-disponibilidadeFim: "18:00",
-avaliacaoMedia: 5,
-profissao: "Cozinheira",
-servico: "Culinária Japonesa, Comida Brasileira, Doces e Salgados",
-rua: "Rua de Cima",
-numero: "5",
-bairro: "Centro",
-// cep: "45500-000",
-estado: "Bahia",
-cidade: "Itacaré",
-latitude: "",
-};
-
-const profissional_2: Profissional = {
-  id: 2,
-  usuario: usuario2,
-  categorias: [],
-  descricao: "Pedreiro a mais de 20 anos aprendendo com meu pai que aprendeu com meu avo",
-  uriImagemPrincipal: "https://media.istockphoto.com/id/1376721527/pt/foto/portrait-of-a-building-contractor-working-at-a-construction-site.jpg?s=612x612&w=0&k=20&c=13fG6j_Pxqv-sWxTOZZmfWbhRT1ISaOm6M6OoozYbmA=",
-  imagemPortifolios: listaPortfolio,
-  telefone: "(73) 98458-6635",
-  disponibilidadeInicio: "08:00",
-  disponibilidadeFim: "18:00",
-  avaliacaoMedia: 3.2,
-  profissao: "Pedreiro",
-  servico: "Construção de Casas, Reformas em Geral, Manutenção",
-  rua: "Rua de Cima",
-  numero: "5",
-  bairro: "Santa Maria",
-  // cep: "45500-000",
-  estado: "Bahia",
-  cidade: "Itacaré",
-  latitude: "",
-};
-
-const profissionais = [profissional, profissional_2];
-
-
-
-
 
 
 export function Home() {
 
-
  const { setExisteUsuario } = useUserStore();
  const { getUsuario }  = useStorege();
+ const [listaProfissionalCard, setListaProfissionalCard] = useState<ProfissionalCard[]>([]);
 
   useFocusEffect(
     useCallback(() => {
@@ -159,8 +92,28 @@ export function Home() {
           console.log("Erro ao obter usuário do storage:", error);
         }
       };
-
       verificarUsuario();
+
+      const obterProfissioaisCard = async () => {
+        try {
+          const response: RequestResponse = await ObterProfissionalCard();
+
+          if (response.sucess) {
+
+            const listaObjeto: ProfissionalCard[] = response.objeto;
+            setListaProfissionalCard(listaObjeto);
+
+            console.log("listaObjeto: " + JSON.stringify(listaObjeto))
+                         
+            }else{
+              console.log("Erro API: " + response.message);
+            }
+        } catch (error) {
+          console.log("Erro ao obterProfissioaisCard: ", error);
+        }
+      };
+      obterProfissioaisCard();
+
     }, [])
   );
 
@@ -205,7 +158,8 @@ export function Home() {
       <View style={styles.flatlist}>
         <Text style={styles.sectionTitle}>Mais Indicados da Semana</Text>
         <FlatList 
-            data={profissionais}
+            style={{height: '70%'}}
+            data={listaProfissionalCard}
             keyExtractor={item => String(item.id)}
             renderItem={({item}) => <CardItem item={ item } remover={false}  />}
         /> 
@@ -286,8 +240,10 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   flatlist: {
+    // backgroundColor: 'red',
     width: '100%',
     marginTop: 15,
+    marginBottom: 50,
   },
   categoryText: {
     fontSize: 12,

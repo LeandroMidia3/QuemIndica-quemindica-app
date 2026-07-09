@@ -10,3 +10,7 @@ export const formatarData = (data: Date): string => {
     return "";
   }
 };
+
+export const formataTelefone = (telefone: string): string => {
+  return telefone.replace(/\D/g, '');
+}

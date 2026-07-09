@@ -29,6 +29,7 @@ import { useUserStore } from '../../utils/userStore';
 import { ModalMensagem } from '../../components/modalMensagem';
 import { BASE_URL } from '@env'; 
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { ModalConfirmacao } from '../../components/modalConfirmacao';
 
 
 interface ProfissionalForm {
@@ -116,6 +117,7 @@ export function CadastroForm() {
   const { setExisteUsuario } = useUserStore();
   const [modalMessage, setModalMessage] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalConfirmacaoVisible, setModalConfirmacaoVisible] = useState(false);
   
   const navigation = useNavigation();
 
@@ -359,6 +361,7 @@ export function CadastroForm() {
       
   }, []);
 
+
   function formatarCategoria(categorias: any[]){
     const categoriasFormatadas: any[] = [];
     categorias.forEach(element => {
@@ -375,7 +378,13 @@ export function CadastroForm() {
       console.log("excluirFoto: " + profissional.id);
       const response = await deleteFoto(profissional.id);
       console.log("EXCLUIR FOTO: " + JSON.stringify(response));
+      setProfissional({ ...profissional, uriImagemPrincipal: '' });
+      setModalConfirmacaoVisible(false)
     }
+  }
+
+  async function modalExcluirFotoPrincipal() {
+    setModalConfirmacaoVisible(true);
   }
 
   const formItems = [
@@ -413,7 +422,7 @@ export function CadastroForm() {
 
         {profissional?.uriImagemPrincipal && !fotoPrincipal &&
             <View style={styles.excluifoto}>
-                <TouchableOpacity style={[styles.buttonremover, styles.cancel]} onPress={excluirFoto}>
+                <TouchableOpacity style={[styles.buttonremover, styles.cancel]} onPress={modalExcluirFotoPrincipal}>
                     <Text style={styles.buttonText}><Icon name="delete" size={17} color="#FFF" />  Apagar</Text>
                 </TouchableOpacity>
             </View>
@@ -808,21 +817,29 @@ export function CadastroForm() {
 
   return (
 
+    
 
     <View style={styles.container}> 
-        
-    <Modal visible={modalVisible} animationType='fade' transparent={true}>
-        <ModalMensagem handleClose={() => setModalVisible(false)} type={'error'} message={modalMessage} ></ModalMensagem>
-    </Modal>
 
-    <FlatList
-      data={formItems}
-      renderItem={({ item }) => item.render()}
-      keyExtractor={(item) => item.key}
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{ paddingBottom: 300 }}
-      keyboardDismissMode="on-drag"
-    />
+      <Modal visible={modalConfirmacaoVisible} animationType='fade' transparent={true}>
+        <ModalConfirmacao mensagem={'Apagar foto principal?'} 
+                          handleConfirmacao={() => excluirFoto()} 
+                          handleClose={() => setModalConfirmacaoVisible(false)} >
+        </ModalConfirmacao>
+      </Modal>
+          
+      <Modal visible={modalVisible} animationType='fade' transparent={true}>
+          <ModalMensagem handleClose={() => setModalConfirmacaoVisible(false)} type={'error'} message={modalMessage} ></ModalMensagem>
+      </Modal>
+
+      <FlatList
+        data={formItems}
+        renderItem={({ item }) => item.render()}
+        keyExtractor={(item) => item.key}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingBottom: 300 }}
+        keyboardDismissMode="on-drag"
+      />
 
    </View>
 
