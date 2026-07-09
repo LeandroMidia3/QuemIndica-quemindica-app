@@ -53,3 +53,11 @@ export async function deleteFoto(id?: number | 0) {
   });
   return response.json();
 }
+
+export async function ObterProfissionalCard() {
+  console.log("ObterProfissionalCard");
+  const response = await fetch(`${BASE_URL}/Profissional/ObterTodosCard`, {
+    method: "GET",
+  });
+  return response.json();
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Profissional } from '../../model/Profissional';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -7,12 +7,15 @@ import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "../../pages/routes/types";
 import { colors } from '../../assets/css/globalStyles';
+import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
+import { BASE_URL } from '@env'; 
+import { formataTelefone } from '../../utils/utils';
 
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
 
 type CardItemProps = {
-  item: Profissional,
+  item: ProfissionalCard,
   remover: boolean
 };
 
@@ -23,26 +26,38 @@ export function CardItem({ item, remover }: CardItemProps) {
 
  const navigation = useNavigation<NavigationProp>();
 
+
+
+ const openWhatsApp = () => {
+  const phoneNumber = formataTelefone(item.telefone);
+  const message = 'Olá, vi seu nome no QuemIndica e fiquei interessado no seu serviço, como podemos proceder?!';
+  const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+  Linking.openURL(url).catch(() => {
+    console.log('Não foi possível abrir o WhatsApp');
+  });
+};
+
   return (
 
    <View style={styles.card}>
-      <Image source={{uri: item.uriImagemPrincipal}} style={styles.avatar} />
+      <Image source={{uri: `${BASE_URL}/imagens/${item?.uriImagemPrincipal}?t=${Date.now()}`}} style={styles.avatar} />
       <View style={styles.info}>
-        <Text style={styles.nome}>{item.usuario.nome}</Text>
-        <Text style={styles.profissao}>{item.profissao} | {item.bairro}</Text>
+        <Text style={styles.nome}>{item.nome}</Text>
+        <Text style={styles.profissao}>{item.categorias} | {item.cidade}</Text>
 
           <Text style={[styles.row, styles.rating]}>
               {Array.from({ length: item.avaliacaoMedia }).map((_, i) => (
                 <Text key={i}><Icon name="star" size={17} color="#FFD700" /></Text>
               ))}
-              {item.avaliacaoMedia}
+              {/* <Text style={{paddingLeft: 50}}>{item.avaliacaoMedia}</Text> */}
           </Text>
 
         {/* <Text style={styles.rating}>⭐⭐⭐⭐⭐ {item.rating}</Text> */}
 
         <View style={styles.actions}>
 
-          <TouchableOpacity style={[styles.whatsapp, styles.buttons]}>
+          <TouchableOpacity style={[styles.whatsapp, styles.buttons]} onPress={openWhatsApp}>
             <Icon name="whatsapp" size={sizeImageButton} color="#FFF" />
           </TouchableOpacity>
 
