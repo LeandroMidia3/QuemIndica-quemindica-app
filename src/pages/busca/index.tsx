@@ -53,8 +53,6 @@ export function Busca() {
             const listaObjeto: ProfissionalCard[] = response.objeto;
             setListaProfissionalCard(listaObjeto);
 
-            console.log("listaObjeto: " + JSON.stringify(listaObjeto))
-                         
             }else{
               console.log("Erro API: " + response.message);
             }

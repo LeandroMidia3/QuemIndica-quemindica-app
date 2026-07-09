@@ -61,3 +61,19 @@ export async function ObterProfissionalCard() {
   });
   return response.json();
 }
+
+export async function ObterPerfil(id: number) {
+   const response = await fetch(`${BASE_URL}/Profissional/ObterPerfil/${id}`, {
+     method: 'GET',
+     headers: { 'Content-Type': 'application/json' }
+   });
+   return response.json();
+}
+
+export async function ObterByFavoritosByUsuario(id: number) {
+  console.log("ObterProfissional id: " + id);
+  const response = await fetch(`${BASE_URL}/Profissional/ObterByFavoritos/${id}`, {
+    method: "GET",
+  });
+  return response.json();
+}

@@ -2,7 +2,7 @@ import Config from "react-native-config";
 import { Usuario } from "../model/Usuario";
 import { UsuarioSave } from "../modelUtils/UsuarioSave";
 import { BASE_URL } from '@env'; 
-
+import { Favorito } from "../model/Favorito";
 
 export async function SalvarUsuario(usuario: UsuarioSave) {
    const response = await fetch(`${BASE_URL}/Usuario/CadastrarUsuario`, {
@@ -39,4 +39,23 @@ export async function UpdateUsuario(id: number, usuario: any) {
    return response.json();
 }
 
+
+export async function FavoritarProfissional(favorito: Favorito) {
+   const response = await fetch(`${BASE_URL}/Usuario/FavoritarProfissional`, {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify(favorito)
+   });
+   return response.json();
+}
+
+export async function ObterFavorito(favorito: Favorito) {
+  console.log("ObterFavorito");
+  const response = await fetch(`${BASE_URL}/Usuario/ObterFavorito`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(favorito)
+   });
+  return response.json();
+}
 
