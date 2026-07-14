@@ -3,11 +3,15 @@ import { Profissional } from './Profissional';
 import { Usuario } from './Usuario';
 
 export interface Avaliacao {
-    id: number;
+    id?: number;
     estrelas: number;
     comentario: string;
-    dataAvaliacao: Date;
-    tempo: string;
-    usuario: Usuario;
-    profissional: Profissional
+    data: string;
+    idusuario: number,
+    idprofissional: number
+
+    nome?: string;
+    tempo?: string;
+    usuario?: Usuario;
+    profissional?: Profissional,
 }
