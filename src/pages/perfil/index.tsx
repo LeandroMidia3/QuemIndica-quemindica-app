@@ -21,75 +21,12 @@ import { ProfissionalPerfil } from '../../modelUtils/ProfissionalPerfil';
 import { BASE_URL } from '@env'; 
 import { openWhatsApp } from '../../utils/utils';
 import { Favorito } from '../../model/Favorito';
-
+import { ObterAvaliacaoByProfissional, SalvarAvaliacao } from '../../api/AvaliacaoController';
+import { AvaliacaoResponse } from '../../modelUtils/AvaliacaoResponse';
+import { formatarData } from '../../utils/utils';
 
 const sizeImageButton = 20;
 
-
-
-//MOCK INICIO
-
-const usuario: Usuario = {
-    id: 1,
-    nome: "Maria Thereza",
-    email: '',
-    dataCadastro: new Date(),
-    perfil: Perfil.Profissional,
-    senha: "senhaSegura",
-    status: Status.Ativo,
-  };
-
-  const listaPortfolio: Portifolio[] = [
-     {id: 1, uri: "https://media.istockphoto.com/id/672022974/pt/foto/fresh-grilled-dorade-rose.jpg?s=1024x1024&w=is&k=20&c=oDcTXprCLWbRudU4i7eSLdvFsdaH9VmvFdcVNKq_NUk="},
-     {id: 2, uri: "https://media.istockphoto.com/id/1140296796/pt/foto/baked-dorado-with-vegetables-and-green-sauce-view-from-above.jpg?s=612x612&w=0&k=20&c=ztvlqHXYuX5fDsi_sRzBR-j1ogbv5OYBiVmPj53ssLY="},
-     {id: 3, uri: "https://media.istockphoto.com/id/916448498/pt/foto/grilled-seabream-on-carrot-onion-and-celery-stalks.jpg?s=612x612&w=0&k=20&c=59YdcFiiwaOc55FiJWF2zEM9XG0RKXIZKc-libAk03o="},
-     {id: 4, uri: "https://media.istockphoto.com/id/953091918/pt/foto/whole-grilled-dorado-with-lemon-slices-on-table.jpg?s=612x612&w=0&k=20&c=AiVZMe3-JWOPVP21zop7WOdUO8015LWUovTXuUbFIUE="},
-     {id: 5, uri: "https://media.istockphoto.com/id/892159736/pt/foto/festive-table-decoration.jpg?s=612x612&w=0&k=20&c=LSV8Q19cG-qQZfUoOB9OENePe9BV7sKQpwuM5ubrkOg="},
-];
-
-const profissional: Profissional = {
-  id: 1,
-  usuario: usuario,
-  categorias: [],
-  descricao: "Mais de 10 anos de experiência combinando várias viagens estudando divérsas culinárias mundiais",
-  uriImagemPrincipal: "https://media.istockphoto.com/id/1252338682/pt/foto/female-chef-is-preparing-a-flamb%C3%A9-specialty.jpg?s=612x612&w=0&k=20&c=98zSrE1RIcKycUAvbZsKmOw1QjAIPZmF0JqrqwTYa1w=",
-  imagemPortifolios: listaPortfolio,
-  telefone: "(73) 98458-6635",
-  disponibilidadeInicio: "08:00",
-  disponibilidadeFim: "18:00",
-  avaliacaoMedia: 5,
-  profissao: "Cozinheira",
-  servico: "Culinária Japonesa, Comida Brasileira, Doces e Salgados",
-  rua: "Rua de Cima",
-  numero: "5",
-  bairro: "Centro",
-  // cep: "45500-000",
-  estado: "Bahia",
-  cidade: "Itacaré",
-  latitude: "",
-};
-
-  const avaliacao1_1 : Avaliacao = { 
-    id: 1, 
-    estrelas: 5, 
-    comentario: "ótimo serviço e bom atendimento", 
-    dataAvaliacao: new Date(), 
-    tempo: "5 meses", 
-    usuario: { id: 1, nome: "Leandro", email: '', dataCadastro: new Date(), perfil: Perfil.Cliente, senha: "", status: Status.Ativo },
-    profissional: profissional,
-  };
-
-  const avaliacao1_2 : Avaliacao = { 
-    id: 2, 
-    estrelas: 3, 
-    comentario: "Não teve muito atenção, mas o serviço foi muito bom", 
-    dataAvaliacao: new Date(), 
-    tempo: "20 dias", 
-    usuario: { id: 1, nome: "Leandro", email: "", dataCadastro: new Date(), perfil: Perfil.Cliente, senha: "", status: Status.Ativo },
-    profissional: profissional,
-  };
-
-  //MOCK FIM
 
 
 export function PerfilProfissional() {
@@ -134,7 +71,7 @@ export function PerfilProfissional() {
 
 
   const [avaliacao, setAvaliacao] = useState<Avaliacao[]>([]);
-  const listaAvaliacoes: Avaliacao[] = [avaliacao1_1, avaliacao1_2];
+  const listaAvaliacoes: Avaliacao[] = [];
 
 
 
@@ -159,7 +96,7 @@ const route = useRoute<PerfilProfissionalRouteProp>();
 const { id } = route.params;
 
 useEffect(() => {
-  setPortifolio(listaPortfolio);
+  // setPortifolio(listaPortfolio);
   setAvaliacao(listaAvaliacoes);
   // ajustaServicos(profissionalAtual.servico);
 
@@ -169,15 +106,43 @@ useEffect(() => {
       setModalVisible(true);
   }
 
-  function salvarAvaliacao(item: any) {
-      console.log(item);
+  async function salvarAvaliacao(item: Avaliacao) {
 
-      let avaliadorTeste: Avaliacao = avaliacao1_1;
-      setAvaliacao((prev) => [...prev, avaliadorTeste]);
+    const usuarioStorege = await getUsuario("@usuario");
+    item.idusuario = usuarioStorege?.id || 0;
+    item.idprofissional = profissionalAtual?.id || 0;
+    item.data = formatarData(new Date());
+    
+    const response: RequestResponse =  await SalvarAvaliacao(item);
 
-      setModalVisible(true);
+    console.log("salvarAvaliacao: " + JSON.stringify(response));
+
+    if(response.sucess){
+      atualizarAvaliacoes(profissionalAtual?.id || 0);
+    }
+
+      setModalVisible(false);
   }
 
+
+  const atualizarAvaliacoes = async (id: number) => {
+          try {
+              const response: RequestResponse = await ObterAvaliacaoByProfissional(id);
+              if (response.sucess) {
+
+                const avaliacaoResponse: AvaliacaoResponse = response.objeto;
+                const avaliacoes: Avaliacao[] = avaliacaoResponse.avaliacoes;
+
+                setProfissionalAtual(prev => ({...prev!, avaliacaoMedia: avaliacaoResponse.estrela}));
+                setAvaliacao(avaliacoes);      
+                  
+                }else{
+                  console.log("Erro API: " + response.message);
+                }
+            } catch (error) {
+              console.log("Erro ao obterProfissioaisCard: ", error);
+            }
+        }
   
 
   useFocusEffect(
@@ -217,6 +182,8 @@ useEffect(() => {
                     console.log("false");
                     setCoracao(false);
                   }
+
+                  atualizarAvaliacoes(objeto?.id);
                   
                 }else{
                   console.log("Erro API: " + response.message);
@@ -226,7 +193,6 @@ useEffect(() => {
             }
         }
         obterProfissional();
-
   
       }, [])
     );
@@ -312,7 +278,7 @@ useEffect(() => {
       {avaliacao.map((a) => (
         <View key={a.id} style={styles.review}>
 
-          <Text style={styles.reviewNome}>{a.usuario.nome} – 
+          <Text style={styles.reviewNome}>{a.nome} – 
           
           {Array.from({ length: a.estrelas }).map((_, o) => (
             <Text key={o}><Icon name="star" size={20} color="#FFD700" /></Text>

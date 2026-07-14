@@ -14,7 +14,7 @@ export interface Profissional {
     telefone: string;
     disponibilidadeInicio: string;
     disponibilidadeFim: string;
-    avaliacaoMedia: Float;
+    avaliacaoMedia?: Float;
     servico: string; 
     profissao: string;          // é a string que traz todas as Categorias, profissões
 

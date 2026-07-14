@@ -5,12 +5,12 @@ import { colors } from '../../assets/css/globalStyles';
 
 export function ModalAvaliacao({ handleClose, onSave }) {
   const [comentario, setComentario] = useState('');
-  const [rating, setRating] = useState(0);
+  const [estrelas, setEstrelas] = useState(0);
 
   const handleSave = () => {
-    onSave({ comentario, rating });
+    onSave({ comentario, estrelas });
     setComentario('');
-    setRating(0);
+    setEstrelas(0);
     handleClose();
   };
 
@@ -23,9 +23,9 @@ export function ModalAvaliacao({ handleClose, onSave }) {
           {/* Estrelas */}
           <View style={styles.stars}>
             {[1,2,3,4,5].map((star) => (
-              <TouchableOpacity key={star} onPress={() => setRating(star)}>
+              <TouchableOpacity key={star} onPress={() => setEstrelas(star)}>
                 <Icon
-                  name={star <= rating ? "star" : "star-border"}
+                  name={star <= estrelas ? "star" : "star-border"}
                   size={32}
                   color="#FFD700"
                 />
