@@ -15,6 +15,8 @@ import useStorege from '../../hooks/useStorege';
 import { ObterProfissionalCard, ObterByFavoritosByUsuario } from '../../api/ProfissionalController';
 import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
+import { FavoritarProfissional } from '../../api/UsuarioController';
+import { Favorito } from '../../model/Favorito';
  
 
 export function Favoritos() {
@@ -31,6 +33,7 @@ export function Favoritos() {
           if (usuarioStorege) {
             console.log("usuarioStorege: " + JSON.stringify(usuarioStorege));
             setExisteUsuario(true);              
+            obterProfissioaisCard();
             }else{
               console.log("Não achou usuario no storage");
               setExisteUsuario(false);
@@ -42,16 +45,19 @@ export function Favoritos() {
       verificarUsuario();
 
 
-      const obterProfissioaisCard = async () => {
+    }, [])
+  );
+
+    const obterProfissioaisCard = async () => {
         try {
+
+          setListaProfissionalCard([]);
           const usuarioStorege = await getUsuario("@usuario");
           const response: RequestResponse = await ObterByFavoritosByUsuario(usuarioStorege?.id || 0);
 
           if (response.sucess) {
-
             const listaObjeto: ProfissionalCard[] = response.objeto;
             setListaProfissionalCard(listaObjeto);
-
             }else{
               console.log("Erro API: " + response.message);
             }
@@ -59,10 +65,21 @@ export function Favoritos() {
           console.log("Erro ao obterProfissioaisCard: ", error);
         }
       };
-      obterProfissioaisCard();
 
-    }, [])
-  );
+
+  async function favoritarCoracao(idProfissional: number){
+    const usuarioStorege = await getUsuario("@usuario");
+    const favorito: Favorito = {idusuario: usuarioStorege?.id || 0, idprofissional: idProfissional};
+
+    console.log("favorito: " + JSON.stringify(favorito));
+
+
+    const responseFavorito: RequestResponse = await FavoritarProfissional(favorito);
+
+    console.log("responseFavorito: " + JSON.stringify(responseFavorito));
+
+    obterProfissioaisCard();
+  }
   
   return (
     <View style={styles.container}>
@@ -73,7 +90,9 @@ export function Favoritos() {
             <FlatList 
                 data={listaProfissionalCard}
                 keyExtractor={item => String(item.id)}
-                renderItem={({item}) => <CardItem item={ item } remover={true}  />}
+                renderItem={({item}) => <CardItem item={ item } remover={true}  
+                onHandlerFavoritar={(id) => { favoritarCoracao(id)}} 
+                />}
             /> 
         </View>
         

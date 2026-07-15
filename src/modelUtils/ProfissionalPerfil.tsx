@@ -13,4 +13,5 @@ export interface ProfissionalPerfil {
     servico: string;
     servicos: string[];
     descricao: string;
+    idusuario?: number;
 }
