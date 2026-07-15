@@ -16,12 +16,13 @@ type NavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
 
 type CardItemProps = {
   item: ProfissionalCard,
-  remover: boolean
+  remover: boolean,
+  onHandlerFavoritar?: (id: number) => void; // novo método passado por props
 };
 
 const sizeImageButton = 20;
 
-export function CardItem({ item, remover }: CardItemProps) {
+export function CardItem({ item, remover, onHandlerFavoritar }: CardItemProps) {
 
  const navigation = useNavigation<NavigationProp>();
 
@@ -50,7 +51,7 @@ export function CardItem({ item, remover }: CardItemProps) {
 
 
           {remover && (
-          <TouchableOpacity style={[styles.remover, styles.buttons]}>
+          <TouchableOpacity style={[styles.remover, styles.buttons]} onPress={() => onHandlerFavoritar?.(item.id)}>
             <Icon name="heart-o" size={sizeImageButton} color="#FFF" />
           </TouchableOpacity>
           )}

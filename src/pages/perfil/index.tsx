@@ -4,10 +4,6 @@ import { colors } from '../../assets/css/globalStyles';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { ModalAvaliacao } from '../../components/modalAvaliacao';
 import { Avaliacao } from '../../model/Avaliacao';
-import { Profissional } from '../../model/Profissional';
-import { Usuario } from '../../model/Usuario';
-import { Perfil } from '../../components/enum/Perfil';
-import { Status } from '../../components/enum/Status';
 import { Portifolio } from '../../model/Portifolio';
 import { useUserStore } from '../../utils/userStore';
 import { useFocusEffect, RouteProp, useRoute} from '@react-navigation/native';
@@ -31,9 +27,9 @@ const sizeImageButton = 20;
 
 export function PerfilProfissional() {
 
-
+  const [mostraBtnEdicao, setMostraBtnEdicao] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const { setExisteUsuario } = useUserStore();
+  const { setExisteUsuario, existeUsuario } = useUserStore();
   const { getUsuario }  = useStorege();
   type PerfilProfissionalRouteProp = RouteProp<RootStackParamList, 'PerfilProfissional'>;
   
@@ -79,15 +75,8 @@ export function PerfilProfissional() {
 
   const [coracao, setCoracao] = useState(false);
   async function favoritarCoracao(){
-    console.log("favoritarCoracao: " + JSON.stringify(favorito));
     const responseFavorito: RequestResponse = await FavoritarProfissional(favorito);
-    if(responseFavorito.sucess){
-      setCoracao(true);
-      console.log("true");
-    }else{
-      console.log("false");
-      setCoracao(false);
-    }
+    setCoracao(responseFavorito.sucess);
   }
 
 
@@ -97,8 +86,7 @@ const { id } = route.params;
 
 useEffect(() => {
   // setPortifolio(listaPortfolio);
-  setAvaliacao(listaAvaliacoes);
-  // ajustaServicos(profissionalAtual.servico);
+  // setAvaliacao(listaAvaliacoes);
 
 }, [coracao, favorito]);
 
@@ -114,35 +102,32 @@ useEffect(() => {
     item.data = formatarData(new Date());
     
     const response: RequestResponse =  await SalvarAvaliacao(item);
-
-    console.log("salvarAvaliacao: " + JSON.stringify(response));
-
-    if(response.sucess){
-      atualizarAvaliacoes(profissionalAtual?.id || 0);
-    }
+     if(response.sucess){
+       atualizarAvaliacoes(profissionalAtual?.id || 0);
+     }
 
       setModalVisible(false);
   }
 
 
   const atualizarAvaliacoes = async (id: number) => {
-          try {
-              const response: RequestResponse = await ObterAvaliacaoByProfissional(id);
-              if (response.sucess) {
+    try {
+        const response: RequestResponse = await ObterAvaliacaoByProfissional(id);
+        if (response.sucess) {
 
-                const avaliacaoResponse: AvaliacaoResponse = response.objeto;
-                const avaliacoes: Avaliacao[] = avaliacaoResponse.avaliacoes;
+          const avaliacaoResponse: AvaliacaoResponse = response.objeto;
+          const avaliacoes: Avaliacao[] = avaliacaoResponse.avaliacoes;
 
-                setProfissionalAtual(prev => ({...prev!, avaliacaoMedia: avaliacaoResponse.estrela}));
-                setAvaliacao(avaliacoes);      
-                  
-                }else{
-                  console.log("Erro API: " + response.message);
-                }
-            } catch (error) {
-              console.log("Erro ao obterProfissioaisCard: ", error);
-            }
-        }
+          setProfissionalAtual(prev => ({...prev!, avaliacaoMedia: avaliacaoResponse.estrela}));
+          setAvaliacao(avaliacoes);      
+            
+          }else{
+            console.log("Erro API: " + response.message);
+          }
+      } catch (error) {
+        console.log("Erro ao obterProfissioaisCard: ", error);
+      }
+  }
   
 
   useFocusEffect(
@@ -151,8 +136,7 @@ useEffect(() => {
           try {
             const usuarioStorege = await getUsuario("@usuario");
             if (usuarioStorege) {
-              console.log("usuarioStorege: " + JSON.stringify(usuarioStorege));
-              setExisteUsuario(true);
+                setExisteUsuario(true);
               }else{
                 console.log("Não achou usuario no storage");
                 setExisteUsuario(false);
@@ -170,20 +154,23 @@ useEffect(() => {
                   const objeto: ProfissionalPerfil = response.objeto;
                   objeto.servicos = ajustaServicos(objeto.servico);
                   setProfissionalAtual(objeto);       
-                  
+
                   const usuarioStorege = await getUsuario("@usuario");
-                  const verificaFavorito: Favorito = {idusuario: usuarioStorege?.id || 0, idprofissional: objeto?.id || 0};
+                  const idUsuario = usuarioStorege?.id || 0;
+                  const idUsuarioProfissional = objeto?.idusuario || 0;
+                  const idProfissional = objeto?.id || 0;
+
+                  const verificaFavorito: Favorito = {idusuario: idUsuario , idprofissional: idProfissional};
                   setFavorito(verificaFavorito);
                   const responseFavorito: RequestResponse = await ObterFavorito(verificaFavorito);
                   if(responseFavorito.sucess){
                     setCoracao(true);
-                    console.log("true");
                   }else{
-                    console.log("false");
                     setCoracao(false);
                   }
 
-                  atualizarAvaliacoes(objeto?.id);
+                  atualizarAvaliacoes(idProfissional);
+                  mostraEdicaoAvaliacao((idUsuario === idUsuarioProfissional));
                   
                 }else{
                   console.log("Erro API: " + response.message);
@@ -193,7 +180,10 @@ useEffect(() => {
             }
         }
         obterProfissional();
-  
+
+        const mostraEdicaoAvaliacao = async (usuarioMesmoProfissional: boolean) =>{
+            setMostraBtnEdicao(existeUsuario && !usuarioMesmoProfissional);
+        }
       }, [])
     );
 
@@ -224,6 +214,7 @@ useEffect(() => {
         <TouchableOpacity style={[styles.button, styles.whatsapp]} onPress={() => openWhatsApp(profissionalAtual?.telefone || "")}>          
           <Text style={styles.buttonText}><Icon name="whatsapp" size={sizeImageButton} color="#FFF" />   Mensagem</Text>
         </TouchableOpacity>
+        {existeUsuario &&
         <TouchableOpacity style={[styles.button, styles.favorito]} onPress={favoritarCoracao}>
           {/* <Text style={styles.buttonText}>Adicionar aos Favoritos</Text> */}
           {coracao &&
@@ -233,6 +224,7 @@ useEffect(() => {
               <Text style={styles.buttonText}><Icon name="heart-o" size={sizeImageButton} color="#FFF" />   Favoritar</Text>
           }
         </TouchableOpacity>
+        }
       </View>
 
       {/* Sobre mim */}
@@ -268,7 +260,9 @@ useEffect(() => {
       {/* Avaliações */}
       <View style={styles.avaliacao}>
         <Text style={styles.sectionTitle}>Avaliações</Text>
-        <TouchableOpacity style={styles.btnavaliacao} onPress={modalAvaliar}><Icon name="pencil-square-o" size={sizeImageButton} color="#fff" /></TouchableOpacity>
+        {mostraBtnEdicao &&
+          <TouchableOpacity style={styles.btnavaliacao} onPress={modalAvaliar}><Icon name="pencil-square-o" size={sizeImageButton} color="#fff" /></TouchableOpacity>
+        }
       </View>
 
       <Modal visible={modalVisible} animationType='fade' transparent={true}>
