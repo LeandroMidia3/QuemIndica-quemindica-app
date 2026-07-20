@@ -8,7 +8,7 @@ import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "../../pages/routes/types";
 import { colors } from '../../assets/css/globalStyles';
 import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
-import { BASE_URL } from '@env'; 
+import { BASE_URL, URL_IMG_PROFISSIONAL } from '@env'; 
 import { openWhatsApp } from '../../utils/utils';
 
 
@@ -29,7 +29,7 @@ export function CardItem({ item, remover, onHandlerFavoritar }: CardItemProps) {
   return (
 
    <View style={styles.card}>
-      <Image source={{uri: `${BASE_URL}/imagens/${item?.uriImagemPrincipal}?t=${Date.now()}`}} style={styles.avatar} />
+      <Image source={{uri: `${URL_IMG_PROFISSIONAL}/${item?.uriImagemPrincipal}?t=${Date.now()}`}} style={styles.avatar} />
       <View style={styles.info}>
         <Text style={styles.nome}>{item.nome}</Text>
         <Text style={styles.profissao}>{item.categorias} | {item.cidade}</Text>

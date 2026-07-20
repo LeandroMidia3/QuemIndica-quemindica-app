@@ -14,7 +14,7 @@ import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
 import { RootStackParamList } from "../routes/types";
 import { ProfissionalPerfil } from '../../modelUtils/ProfissionalPerfil';
-import { BASE_URL } from '@env'; 
+import { BASE_URL, URL_IMG_PROFISSIONAL } from '@env'; 
 import { openWhatsApp } from '../../utils/utils';
 import { Favorito } from '../../model/Favorito';
 import { ObterAvaliacaoByProfissional, SalvarAvaliacao } from '../../api/AvaliacaoController';
@@ -194,7 +194,7 @@ useEffect(() => {
       {/* Cabeçalho */}
       <View style={styles.header}>
           <Image 
-              source={{uri: `${BASE_URL}/imagens/${profissionalAtual?.uriImagemPrincipal}`}} 
+              source={{uri: `${URL_IMG_PROFISSIONAL}/${profissionalAtual?.uriImagemPrincipal}`}} 
               style={styles.avatar} resizeMode='cover'/>
         <View style={styles.info}>
           <Text style={styles.nome}>{profissionalAtual?.nome}</Text>

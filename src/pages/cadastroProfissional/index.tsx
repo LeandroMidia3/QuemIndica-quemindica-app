@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import { TextInputMask } from 'react-native-masked-text';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, globalStyles } from '../../assets/css/globalStyles';
 
 import { Usuario } from '../../model/Usuario';
@@ -27,7 +26,7 @@ import { SalvarProfissional, UpdateProfissional, ObterProfissionalByUsuario, Upd
 import useStorege from '../../hooks/useStorege';
 import { useUserStore } from '../../utils/userStore';
 import { ModalMensagem } from '../../components/modalMensagem';
-import { BASE_URL } from '@env'; 
+import { URL_IMG_PROFISSIONAL } from '@env'; 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ModalConfirmacao } from '../../components/modalConfirmacao';
 
@@ -414,7 +413,7 @@ export function CadastroForm() {
       <View style={styles.fotoPrincipal}>
         {profissional?.uriImagemPrincipal && !fotoPrincipal &&
             <Image
-            source={{uri: `${BASE_URL}/imagens/${profissional?.uriImagemPrincipal}?t=${Date.now()}`}}
+            source={{uri: `${URL_IMG_PROFISSIONAL}/${profissional?.uriImagemPrincipal}?t=${Date.now()}`}}
             style={styles.preview}
             />
         }

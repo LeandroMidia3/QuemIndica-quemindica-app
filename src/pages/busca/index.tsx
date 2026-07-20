@@ -10,20 +10,27 @@ import { Perfil } from '../../components/enum/Perfil';
 import { Status } from '../../components/enum/Status';
 import { Portifolio } from '../../model/Portifolio';
 import { useUserStore } from '../../utils/userStore';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, RouteProp, useRoute} from '@react-navigation/native';
 import useStorege from '../../hooks/useStorege';
 import { ObterProfissionalCard } from '../../api/ProfissionalController';
 import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
-
+import { RootStackParamList } from "../routes/types";
 
 
 
 export function Busca() {
 
+ type BuscaCategoriaRouteProp = RouteProp<RootStackParamList, 'Busca'>;
+ const route = useRoute<BuscaCategoriaRouteProp>();
+ const nome = route.params?.nome ?? null;
+
+  const [textoProfissional, setTextoProfissional] = useState("");
  const { setExisteUsuario } = useUserStore();
  const { getUsuario }  = useStorege();
  const [listaProfissionalCard, setListaProfissionalCard] = useState<ProfissionalCard[]>([]);
+
+
 
   useFocusEffect(
     useCallback(() => {
@@ -62,16 +69,25 @@ export function Busca() {
       };
       obterProfissioaisCard();
 
+      if(nome){
+        console.log("BUSCA: " + nome);
+        setTextoProfissional(nome);
+      }
     }, [])
   );
+
+  const profissionaisFiltradas = listaProfissionalCard.filter((item) =>
+  item.categorias.toLowerCase().includes(textoProfissional.toLowerCase())
+);
 
   
   return (
     <View style={styles.container}>
         
-        <Header title="Buscar Profissionais" mensagem="Aqui estão os profissionais que existem" />
+        {!nome && 
+          <Header title="Buscar Profissionais" mensagem="Aqui estão os profissionais que existem" />
+        }
 
-        
         <View style={styles.subheader}>
 
             <View style={styles.searchContainer}>
@@ -79,11 +95,13 @@ export function Busca() {
                     style={styles.searchInput}
                     placeholder="Quem você procura hoje?"
                     placeholderTextColor={colors.placeholdertext}
+                    value={textoProfissional}
+                    onChangeText={setTextoProfissional}
                     />
             </View>
 
             <FlatList 
-                data={listaProfissionalCard}
+                data={profissionaisFiltradas}
                 keyExtractor={item => String(item.id)}
                 renderItem={({item}) => <CardItem item={ item } remover={false}  />}
             /> 
