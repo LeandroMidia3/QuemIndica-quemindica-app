@@ -5,4 +5,5 @@ export type RootStackParamList = {
   CadastroUsuarioForm: undefined;
   VisualizarCadastro: undefined;
   Login: undefined;
+  Busca: {nome: string}
 };

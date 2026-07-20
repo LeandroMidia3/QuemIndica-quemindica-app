@@ -2,63 +2,20 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, ScrollView, FlatList } from 'react-native';
 import { CardItem } from '../../components/cards/cardItem';
 import { colors, globalStyles } from '../../assets/css/globalStyles';
-import { Avaliacao } from '../../model/Avaliacao';
-import { Profissional } from '../../model/Profissional';
-import { Usuario } from '../../model/Usuario';
-import { Perfil } from '../../components/enum/Perfil';
-import { Status } from '../../components/enum/Status';
+import { ObterTodos, ObterTodosByProfissional } from "../../api/CategoriaController";
 import { Portifolio } from '../../model/Portifolio';
 import { useUserStore } from '../../utils/userStore';
-import { useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import useStorege from '../../hooks/useStorege';
 import { ObterProfissionalCard } from '../../api/ProfissionalController';
 import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
+import { Categoria } from '../../model/Categoria';
+import { URL_IMG_CATEGORIA } from '@env'; 
+import type { RootStackParamList } from "../routes/types";
 
-
-//MOCK INICIO
-const categorias = [
-  {
-    id: '1',
-    nome: 'Professora',
-    foto: 'https://cdn-icons-png.flaticon.com/512/5369/5369664.png',
-  },
-   {
-     id: '2',
-     nome: 'Eletricista',
-     foto: 'https://cdn-icons-png.flaticon.com/512/307/307943.png',
-   },
-   {
-     id: '3',
-     nome: 'Pedreiro',
-     foto: 'https://cdn-icons-png.flaticon.com/512/9321/9321656.png',
-   },
-   {
-     id: '4',
-     nome: 'Cozinheiro',
-     foto: 'https://cdn-icons-png.flaticon.com/512/1830/1830839.png',
-   },
-   {
-     id: '5',
-     nome: 'Advogado',
-     foto: 'https://cdn-icons-png.flaticon.com/512/2710/2710029.png',
-   },
-    {
-      id: '6',
-      nome: 'Soldador',
-      foto: 'https://cdn-icons-png.flaticon.com/512/4530/4530960.png',
-    },
-    {
-      id: '7',
-      nome: 'Programador',
-      foto: 'https://cdn-icons-png.flaticon.com/512/1995/1995515.png',
-    },
-    {
-      id: 8,
-      nome: 'Bombeiro',
-      'foto': 'https://cdn-icons-png.flaticon.com/512/4532/4532490.png',
-    },
-];
+type NavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
+import type { StackNavigationProp } from "@react-navigation/stack";
 
 const listaPortfolio: Portifolio[] = [
   {id: 1, uri: "https://media.istockphoto.com/id/672022974/pt/foto/fresh-grilled-dorade-rose.jpg?s=1024x1024&w=is&k=20&c=oDcTXprCLWbRudU4i7eSLdvFsdaH9VmvFdcVNKq_NUk="},
@@ -69,12 +26,15 @@ const listaPortfolio: Portifolio[] = [
 ];
 
 
-
 export function Home() {
+
+  const navigation = useNavigation<NavigationProp>();
 
  const { setExisteUsuario } = useUserStore();
  const { getUsuario }  = useStorege();
  const [listaProfissionalCard, setListaProfissionalCard] = useState<ProfissionalCard[]>([]);
+ const [categorias, setCategorias] = useState<Categoria[]>([]);
+ const [textoCategoria, setTextoCategoria] = useState("");
 
   useFocusEffect(
     useCallback(() => {
@@ -112,11 +72,27 @@ export function Home() {
       };
       obterProfissioaisCard();
 
+       const obterCategorias = async () => {
+               try {          
+                  const response = await ObterTodos();
+                  // console.log("CATEGORIAS: " + JSON.stringify(response));
+                 //  formatarCategoria(response);  
+                 setCategorias(response);
+               } catch (error) {
+                 console.log("Erro para obter as Categorias", error);
+               }
+             };
+           obterCategorias();
+
+           setTextoCategoria("");
+
     }, [])
   );
 
 
-
+const categoriasFiltradas = categorias.filter((item) =>
+  item.nome.toLowerCase().includes(textoCategoria.toLowerCase())
+);
 
   return (
     <View style={styles.container}>
@@ -131,6 +107,8 @@ export function Home() {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
+          value={textoCategoria}
+          onChangeText={setTextoCategoria}
           placeholder="Quem você procura hoje?"
           placeholderTextColor={colors.placeholdertext}
         />
@@ -139,13 +117,13 @@ export function Home() {
       <View>
         <Text style={styles.sectionTitle}>Categorias Populares</Text>
         <FlatList
-          data={categorias}
-          keyExtractor={item => String(item.id)}
+          data={categoriasFiltradas}
+          // keyExtractor={item => String(item.id)}
           horizontal
           showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.categoryCard}>
-              <Image source={{uri: item.foto}} style={styles.categoryIcon} />
+            <TouchableOpacity style={styles.categoryCard} onPress={() => navigation.navigate('Busca', { nome: item.nome})}>
+              <Image source={{uri: `${URL_IMG_CATEGORIA}/${item.imagem}?t=${Date.now()}`}} style={styles.categoryIcon} />
               <Text style={styles.categoryText}>{item.nome}</Text>
             </TouchableOpacity>
           )}
@@ -167,6 +145,10 @@ export function Home() {
     </View>
   );
 }
+
+
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -201,7 +183,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F2F2F2',
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   searchInput: {
     height: 40,
@@ -240,8 +222,8 @@ const styles = StyleSheet.create({
   flatlist: {
     // backgroundColor: 'red',
     width: '100%',
-    marginTop: 15,
-    marginBottom: 50,
+    marginTop: 10,
+    marginBottom: 100,
   },
   categoryText: {
     fontSize: 12,
@@ -263,7 +245,6 @@ const styles = StyleSheet.create({
   categoryIcon: {
     width: 50,
     height: 50,
-    marginBottom: 5,
   },
 
 });

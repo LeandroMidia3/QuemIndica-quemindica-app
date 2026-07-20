@@ -4,4 +4,5 @@ export interface Categoria {
     id: number;
     nome: string;
     status: Status;
+    imagem: string;
 }

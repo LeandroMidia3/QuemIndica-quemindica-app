@@ -181,6 +181,18 @@ export function Routes() {
             } } 
       />
 
+    <Stack.Screen 
+        name="Busca" 
+        component={Busca} 
+        options={{ 
+            title: 'Pesquisar Profissional', 
+            headerTintColor: '#FFF', 
+            headerStyle: { 
+                    backgroundColor: colors.background
+                } 
+            } } 
+      />
+
       
 
     </Stack.Navigator>
