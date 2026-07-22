@@ -29,6 +29,7 @@ import { ModalMensagem } from '../../components/modalMensagem';
 import { URL_IMG_PROFISSIONAL } from '@env'; 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ModalConfirmacao } from '../../components/modalConfirmacao';
+import LoadingModal from '../../components/modalPreloader';
 
 
 interface ProfissionalForm {
@@ -74,6 +75,7 @@ interface CategoriaCombo {
 
 export function CadastroForm() {
 
+  const [loading, setLoading] = useState(false);
   const [openCidade, setOpenCidade] = useState(false);
   const [cidades, setCidades] = useState([
     { label: 'AC', value: 'AC' },
@@ -238,6 +240,7 @@ export function CadastroForm() {
       
       let response: RequestResponse = {} as RequestResponse;
   
+      setLoading(true);
       if(item != undefined && item.id != undefined && item.id > 0){
         console.log("Atualizando profissional: " + JSON.stringify(item));
         response = await UpdateProfissional(item.id, item);
@@ -246,6 +249,7 @@ export function CadastroForm() {
         response = await SalvarProfissional(item);
       }
   
+      setLoading(false);
        if(response.sucess){
           console.log("salvaProfissaoApi ENTROU");
           const newProfissional = response.objeto;
@@ -266,6 +270,7 @@ export function CadastroForm() {
 
       }catch(error){
           console.log("ERROR: " + error);
+          setLoading(false);
       }
   }
 
@@ -310,6 +315,7 @@ export function CadastroForm() {
         const usuarioStorege = await getUsuario("@usuario");
         if (usuarioStorege) {
 
+          setLoading(true);
           const objetoProfissional: any = await ObterProfissionalByUsuario(usuarioStorege.id);
           const profissional = objetoProfissional.objeto;
           profissional.id = profissional.idprofissional;
@@ -332,12 +338,14 @@ export function CadastroForm() {
           setValue("disponibilidadeFim", objetoProfissional.objeto.disponibilidadeFim);
 
           obterCategoriasByProfissional(profissional.idprofissional);
+          setLoading(false);
 
         }else{
           console.log("Erro ao obter usuário do storage");
         }
       } catch (error) {
         console.log("Erro ao obter usuário do storage:", error);
+        setLoading(false);
       }
     };
     verificarUsuario();
@@ -828,7 +836,7 @@ export function CadastroForm() {
       </Modal>
           
       <Modal visible={modalVisible} animationType='fade' transparent={true}>
-          <ModalMensagem handleClose={() => setModalConfirmacaoVisible(false)} type={'error'} message={modalMessage} ></ModalMensagem>
+          <ModalMensagem handleClose={() => setModalVisible(false)} type={'error'} message={modalMessage} ></ModalMensagem>          
       </Modal>
 
       <FlatList
@@ -839,7 +847,7 @@ export function CadastroForm() {
         contentContainerStyle={{ paddingBottom: 300 }}
         keyboardDismissMode="on-drag"
       />
-
+<LoadingModal visible={loading} />
    </View>
 
 

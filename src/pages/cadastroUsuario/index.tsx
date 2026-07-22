@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, FlatList, KeyboardAvoidingView, Platform, Modal } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
 import { useNavigation } from '@react-navigation/native';
-import { TextInputMask } from 'react-native-masked-text';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { launchImageLibrary } from 'react-native-image-picker';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, globalStyles } from '../../assets/css/globalStyles';
 import { Usuario } from '../../model/Usuario';
 import { Perfil } from '../../components/enum/Perfil';
@@ -20,6 +15,7 @@ import { ModalMensagem } from '../../components/modalMensagem';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
 import useStorege from '../../hooks/useStorege';
 import { useUserStore } from '../../utils/userStore';
+import LoadingModal from '../../components/modalPreloader';
 
 interface UsuarioForm {
   nome: string;
@@ -45,6 +41,7 @@ export function CadastroUsuarioForm() {
   const { saveUsuario, getUsuario }  = useStorege();
   const { setExisteUsuario } = useUserStore();
   const [modalMessage, setModalMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const { control, handleSubmit, setValue, formState: { errors } } = useForm<UsuarioForm>({
     resolver: yupResolver(schema),
@@ -80,6 +77,7 @@ export function CadastroUsuarioForm() {
 
     let response: RequestResponse = {} as RequestResponse;
 
+    setLoading(true);
     if(usuario != undefined && usuario.id != undefined && usuario.id > 0){
       console.log("Atualizando usuario: " + JSON.stringify(usuarioSave));
       response = await UpdateUsuario(usuario.id, usuarioSave);
@@ -87,6 +85,7 @@ export function CadastroUsuarioForm() {
       console.log("Salvando usuario: " + JSON.stringify(usuarioSave));
       response = await SalvarUsuario(usuarioSave);
     }
+    setLoading(false);
 
      if(response.sucess){
        usuarioSave.id = response.id;
@@ -96,6 +95,7 @@ export function CadastroUsuarioForm() {
      }else{
        setModalVisible(true);
        setModalMessage(response.message);
+       setLoading(false);
      }
 
   }
@@ -228,7 +228,7 @@ export function CadastroUsuarioForm() {
       <Text style={styles.terms}>
         Ao cadastrar-se, você concorda com os Termos de Uso e Política de Privacidade.
       </Text>
-
+<LoadingModal visible={loading} />
     </ScrollView> 
 
   );

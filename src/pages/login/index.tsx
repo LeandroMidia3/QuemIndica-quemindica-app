@@ -102,7 +102,7 @@ export function Login() {
       </TouchableOpacity>
 
 
-    <TouchableOpacity onPress={() => navigation.navigate('CadastroUsuarioForm')}>
+    <TouchableOpacity onPress={() => navigation.navigate('EsqueciSenha')}>
       <Text style={styles.link}>Esqueci minha senha</Text>
     </TouchableOpacity>
 
