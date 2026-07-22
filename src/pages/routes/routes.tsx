@@ -3,6 +3,7 @@ import {Home} from '../home';
 import {Login } from '../login';
 import {Favoritos } from '../favoritos';
 import { Busca } from '../busca';
+import { EsqueciSenha } from '../esqueciSenha';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { CadastroForm } from '../cadastroProfissional';
 import { PerfilProfissional } from '../perfil';
@@ -192,6 +193,19 @@ export function Routes() {
                 } 
             } } 
       />
+
+    <Stack.Screen 
+        name="EsqueciSenha" 
+        component={EsqueciSenha} 
+        options={{ 
+            title: 'Recuperar senha', 
+            headerTintColor: '#FFF', 
+            headerStyle: { 
+                    backgroundColor: colors.background
+                } 
+            } } 
+      />
+      
 
       
 

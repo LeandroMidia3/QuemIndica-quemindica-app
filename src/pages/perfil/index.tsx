@@ -20,10 +20,9 @@ import { Favorito } from '../../model/Favorito';
 import { ObterAvaliacaoByProfissional, SalvarAvaliacao } from '../../api/AvaliacaoController';
 import { AvaliacaoResponse } from '../../modelUtils/AvaliacaoResponse';
 import { formatarData } from '../../utils/utils';
+import LoadingModal from '../../components/modalPreloader';
 
 const sizeImageButton = 20;
-
-
 
 export function PerfilProfissional() {
 
@@ -32,6 +31,7 @@ export function PerfilProfissional() {
   const { setExisteUsuario, existeUsuario } = useUserStore();
   const { getUsuario }  = useStorege();
   type PerfilProfissionalRouteProp = RouteProp<RootStackParamList, 'PerfilProfissional'>;
+  const [loading, setLoading] = useState(false);
   
   const [favorito, setFavorito] = useState<Favorito>({
     idusuario: 0,
@@ -149,7 +149,9 @@ useEffect(() => {
 
         const obterProfissional = async () => {
           try {
+              setLoading(true);
               const response: RequestResponse = await ObterPerfil(id);
+              setLoading(false);
               if (response.sucess) {
                   const objeto: ProfissionalPerfil = response.objeto;
                   objeto.servicos = ajustaServicos(objeto.servico);
@@ -177,6 +179,7 @@ useEffect(() => {
                 }
             } catch (error) {
               console.log("Erro ao obterProfissioaisCard: ", error);
+              setLoading(false);
             }
         }
         obterProfissional();
@@ -289,6 +292,7 @@ useEffect(() => {
       <Text style={styles.note}>
         Ao avaliar, você ajuda outros usuários a escolherem os melhores profissionais.
       </Text>
+      <LoadingModal visible={loading} />
     </ScrollView>
   );
 }

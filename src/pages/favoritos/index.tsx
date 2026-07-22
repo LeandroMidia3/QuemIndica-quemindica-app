@@ -4,11 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '../header'; 
 import { CardItem } from '../../components/cards/cardItem';
 import { colors } from '../../assets/css/globalStyles';
-import { Profissional } from '../../model/Profissional';
-import { Usuario } from '../../model/Usuario';
-import { Perfil } from '../../components/enum/Perfil';
-import { Status } from '../../components/enum/Status';
-import { Portifolio } from '../../model/Portifolio';
 import { useUserStore } from '../../utils/userStore';
 import { useFocusEffect } from '@react-navigation/native';
 import useStorege from '../../hooks/useStorege';
@@ -17,6 +12,7 @@ import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
 import { FavoritarProfissional } from '../../api/UsuarioController';
 import { Favorito } from '../../model/Favorito';
+import LoadingModal from '../../components/modalPreloader';
  
 
 export function Favoritos() {
@@ -24,6 +20,7 @@ export function Favoritos() {
   const { setExisteUsuario } = useUserStore();
  const { getUsuario }  = useStorege();
  const [listaProfissionalCard, setListaProfissionalCard] = useState<ProfissionalCard[]>([]);
+ const [loading, setLoading] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -53,7 +50,10 @@ export function Favoritos() {
 
           setListaProfissionalCard([]);
           const usuarioStorege = await getUsuario("@usuario");
+
+          setLoading(true);
           const response: RequestResponse = await ObterByFavoritosByUsuario(usuarioStorege?.id || 0);
+          setLoading(false);
 
           if (response.sucess) {
             const listaObjeto: ProfissionalCard[] = response.objeto;
@@ -63,6 +63,7 @@ export function Favoritos() {
             }
         } catch (error) {
           console.log("Erro ao obterProfissioaisCard: ", error);
+          setLoading(false);
         }
       };
 
@@ -95,7 +96,7 @@ export function Favoritos() {
                 />}
             /> 
         </View>
-        
+        <LoadingModal visible={loading} />
     </View>
   );
 }

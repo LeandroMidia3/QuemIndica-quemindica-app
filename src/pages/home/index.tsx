@@ -13,6 +13,7 @@ import { RequestResponse } from '../../modelUtils/RequestResponse';
 import { Categoria } from '../../model/Categoria';
 import { URL_IMG_CATEGORIA } from '@env'; 
 import type { RootStackParamList } from "../routes/types";
+import LoadingModal from '../../components/modalPreloader';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
 import type { StackNavigationProp } from "@react-navigation/stack";
@@ -35,6 +36,7 @@ export function Home() {
  const [listaProfissionalCard, setListaProfissionalCard] = useState<ProfissionalCard[]>([]);
  const [categorias, setCategorias] = useState<Categoria[]>([]);
  const [textoCategoria, setTextoCategoria] = useState("");
+ const [loading, setLoading] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -56,7 +58,10 @@ export function Home() {
 
       const obterProfissioaisCard = async () => {
         try {
+
+          setLoading(true);
           const response: RequestResponse = await ObterProfissionalCard();
+          setLoading(false);
 
           if (response.sucess) {
 
@@ -68,23 +73,24 @@ export function Home() {
             }
         } catch (error) {
           console.log("Erro ao obterProfissioaisCard: ", error);
+          setLoading(false);
         }
       };
       obterProfissioaisCard();
 
        const obterCategorias = async () => {
-               try {          
-                  const response = await ObterTodos();
-                  // console.log("CATEGORIAS: " + JSON.stringify(response));
-                 //  formatarCategoria(response);  
-                 setCategorias(response);
-               } catch (error) {
-                 console.log("Erro para obter as Categorias", error);
-               }
-             };
-           obterCategorias();
+          try {          
+            const response = await ObterTodos();
+            // console.log("CATEGORIAS: " + JSON.stringify(response));
+            //  formatarCategoria(response);  
+            setCategorias(response);
+          } catch (error) {
+            console.log("Erro para obter as Categorias", error);
+          }
+        };
+      obterCategorias();
 
-           setTextoCategoria("");
+      setTextoCategoria("");
 
     }, [])
   );
@@ -142,6 +148,7 @@ const categoriasFiltradas = categorias.filter((item) =>
       </View>
 
       </View>
+      <LoadingModal visible={loading} />
     </View>
   );
 }

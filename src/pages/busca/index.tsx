@@ -16,20 +16,20 @@ import { ObterProfissionalCard } from '../../api/ProfissionalController';
 import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
 import { RootStackParamList } from "../routes/types";
-
+import LoadingModal from '../../components/modalPreloader';
 
 
 export function Busca() {
 
- type BuscaCategoriaRouteProp = RouteProp<RootStackParamList, 'Busca'>;
- const route = useRoute<BuscaCategoriaRouteProp>();
- const nome = route.params?.nome ?? null;
+  type BuscaCategoriaRouteProp = RouteProp<RootStackParamList, 'Busca'>;
+  const route = useRoute<BuscaCategoriaRouteProp>();
+  const nome = route.params?.nome ?? null;
 
   const [textoProfissional, setTextoProfissional] = useState("");
- const { setExisteUsuario } = useUserStore();
- const { getUsuario }  = useStorege();
- const [listaProfissionalCard, setListaProfissionalCard] = useState<ProfissionalCard[]>([]);
-
+  const { setExisteUsuario } = useUserStore();
+  const { getUsuario }  = useStorege();
+  const [listaProfissionalCard, setListaProfissionalCard] = useState<ProfissionalCard[]>([]);
+  const [loading, setLoading] = useState(false);
 
 
   useFocusEffect(
@@ -53,7 +53,10 @@ export function Busca() {
 
       const obterProfissioaisCard = async () => {
         try {
+
+          setLoading(true);
           const response: RequestResponse = await ObterProfissionalCard();
+          setLoading(false);
 
           if (response.sucess) {
 
@@ -65,6 +68,7 @@ export function Busca() {
             }
         } catch (error) {
           console.log("Erro ao obterProfissioaisCard: ", error);
+          setLoading(false);
         }
       };
       obterProfissioaisCard();
@@ -106,7 +110,7 @@ export function Busca() {
                 renderItem={({item}) => <CardItem item={ item } remover={false}  />}
             /> 
         </View>
-        
+        <LoadingModal visible={loading} />
     </View>
   );
 }
