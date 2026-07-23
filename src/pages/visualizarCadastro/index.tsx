@@ -107,6 +107,10 @@ useFocusEffect(
       <TouchableOpacity style={styles.buttonRed} onPress={sair}>
         <Text style={styles.buttonText}>Sair</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.btnMudarSenha} onPress={() => navigation.navigate('AlterarSenha')}>
+        <Text style={styles.link}>Alterar minha senha</Text>
+      </TouchableOpacity>
       
     </ScrollView>
   );
@@ -173,4 +177,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  link: {
+    color: '#333',
+    marginTop: 15,
+    fontSize: 14,
+  },
+  btnMudarSenha: {
+    alignItems: 'center',
+  }
 });

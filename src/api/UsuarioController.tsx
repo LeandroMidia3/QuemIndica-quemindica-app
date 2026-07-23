@@ -3,7 +3,8 @@ import { Usuario } from "../model/Usuario";
 import { UsuarioSave } from "../modelUtils/UsuarioSave";
 import { BASE_URL } from '@env'; 
 import { Favorito } from "../model/Favorito";
-import {EmailForm} from "../modelUtils/EmailForm";
+import { EmailForm } from "../modelUtils/EmailForm";
+import { SenhaForm } from "../modelUtils/SenhaForm";
 
 export async function SalvarUsuario(usuario: UsuarioSave) {
    const response = await fetch(`${BASE_URL}/Usuario/CadastrarUsuario`, {
@@ -62,6 +63,15 @@ export async function ObterFavorito(favorito: Favorito) {
 
 export async function RecuperarSenha(email: EmailForm) {
    const response = await fetch(`${BASE_URL}/Usuario/RecuperarSenha`, {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify(email)
+   });
+   return response.json();
+}
+
+export async function AlterarNovaSenha(email: SenhaForm) {
+   const response = await fetch(`${BASE_URL}/Usuario/AlterarSenha`, {
      method: 'POST',
      headers: { 'Content-Type': 'application/json' },
      body: JSON.stringify(email)
