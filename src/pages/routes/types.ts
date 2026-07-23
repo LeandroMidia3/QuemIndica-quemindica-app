@@ -7,4 +7,5 @@ export type RootStackParamList = {
   Login: undefined;
   Busca: {nome: string};
   EsqueciSenha: undefined;
+  AlterarSenha: undefined;
 };

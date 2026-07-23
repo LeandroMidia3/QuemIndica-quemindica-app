@@ -16,7 +16,7 @@ import { colors } from '../../assets/css/globalStyles';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useUserStore } from '../../utils/userStore';
-
+import { AlterarSenha } from "../alterarSenha";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -206,6 +206,18 @@ export function Routes() {
             } } 
       />
       
+      
+    <Stack.Screen 
+        name="AlterarSenha" 
+        component={AlterarSenha} 
+        options={{ 
+            title: 'Alterar senha', 
+            headerTintColor: '#FFF', 
+            headerStyle: { 
+                    backgroundColor: colors.background
+                } 
+            } } 
+      />
 
       
 

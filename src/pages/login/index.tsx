@@ -32,29 +32,35 @@ export function Login() {
   const[email, setEmail] = useState<string>('');
   const[senha, setSenha] = useState<string>('');
 
+
   async function handleLogin() {
     
     setModalVisible(false);
     setModalMessage('');
-    const usuarioLogar: UsuarioLogin = {email: email, senha: senha};
 
-    console.log("Request: " + JSON.stringify(usuarioLogar));
+    if((email !== undefined && email !== null && email !== "") || (senha !== undefined && senha !== null && senha !== "")){
 
-    const response: RequestResponse = await LogarUsuario(usuarioLogar);
+      const usuarioLogar: UsuarioLogin = {email: email, senha: senha};
 
-    console.log("response: " + JSON.stringify(response));
+      console.log("Request: " + JSON.stringify(usuarioLogar));
 
-    console.log("response Login: " + JSON.stringify(response));
+      const response: RequestResponse = await LogarUsuario(usuarioLogar);
 
-    if(response.sucess){
-      const usuario: UsuarioSave = response.objeto as UsuarioSave;
-      usuario.id = response.id != null ? response.id : 0;
-      await saveUsuario('@usuario', usuario);
-      setExisteUsuario(true);
-    }else{
-      console.log("FALSE");
-      setModalVisible(true);
-      setModalMessage(response.message);
+      console.log("response: " + JSON.stringify(response));
+
+      console.log("response Login: " + JSON.stringify(response));
+
+      if(response.sucess){
+        const usuario: UsuarioSave = response.objeto as UsuarioSave;
+        usuario.id = response.id != null ? response.id : 0;
+        await saveUsuario('@usuario', usuario);
+        setExisteUsuario(true);
+      }else{
+        console.log("FALSE");
+        setModalVisible(true);
+        setModalMessage(response.message);
+      }
+
     }
 
   }
