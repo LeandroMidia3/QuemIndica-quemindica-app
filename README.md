@@ -47,9 +47,6 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 8 - Criar na API uma site Admin para cadastro e relatórios
 
 10 - Ajustar as cores do Aplicativo e o header
-
-11 - Botão de "Esqueci senha"
-
 13 - Colocar contador para a quantidade de vezes que clicaram no Perfil
 
 
