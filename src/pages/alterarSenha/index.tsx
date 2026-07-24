@@ -136,7 +136,7 @@ export function AlterarSenha() {
 
 function fecharModal(){
     setModalVisible(false);
-    if(typer === "success"){
+    if(typer === "successs"){
         navigation.goBack();
     }
   }
