@@ -14,4 +14,6 @@ export interface Avaliacao {
     tempo?: string;
     usuario?: Usuario;
     profissional?: Profissional,
+    
+    excluir?: boolean;
 }

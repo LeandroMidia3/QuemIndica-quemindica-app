@@ -24,3 +24,10 @@ export async function ObterAvaliacaoByProfissional(id: number) {
   return response.json();
 }
 
+export async function deleteAvaliacao(id?: number | 0) {
+  const response = await fetch(`${BASE_URL}/Avaliacao/DeleteById/${id}`, {
+    method: "DELETE",
+  });
+  return response.json();
+}
+

@@ -26,6 +26,7 @@ export function Login() {
   const [modalMessage, setModalMessage] = useState('');
   const navigation = useNavigation<NavigationProp>();
   const { getUsuario, saveUsuario }  = useStorege();
+  const [secure, setSecure] = useState(true);
 
   const { setExisteUsuario } = useUserStore();
 
@@ -93,14 +94,19 @@ export function Login() {
         onChangeText={setEmail}
         autoCapitalize="none"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Senha"
-        placeholderTextColor={colors.placeholdertext}
-        secureTextEntry
-        value={senha}
-        onChangeText={setSenha}
-      />
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.inputSenha}
+          placeholder="Senha"
+          placeholderTextColor={colors.placeholdertext}
+          secureTextEntry={secure}
+          value={senha}
+          onChangeText={setSenha}
+        />
+        <TouchableOpacity onPress={() => setSecure(!secure)}>
+          <Icon name={secure ? "eye-slash" : "eye"} size={20} color="#666" />
+        </TouchableOpacity>
+      </View>
 
       {/* Botões */}
       <TouchableOpacity style={styles.buttonPrimary} onPress={handleLogin}>
@@ -181,5 +187,22 @@ const styles = StyleSheet.create({
     color: '#F2F2F2',
     marginTop: 15,
     fontSize: 14,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  inputSenha: {
+    flex: 1,
+    height: 40,
+    fontSize: 16,
+    color: colors.text,
   },
 });

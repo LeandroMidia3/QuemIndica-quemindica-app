@@ -2,7 +2,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, ScrollView, FlatList } from 'react-native';
 import { CardItem } from '../../components/cards/cardItem';
 import { colors, globalStyles } from '../../assets/css/globalStyles';
-import { ObterTodos, ObterTodosByProfissional } from "../../api/CategoriaController";
+import { GetAllAtivos, ObterTodosByProfissional } from "../../api/CategoriaController";
 import { Portifolio } from '../../model/Portifolio';
 import { useUserStore } from '../../utils/userStore';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -38,60 +38,73 @@ export function Home() {
  const [textoCategoria, setTextoCategoria] = useState("");
  const [loading, setLoading] = useState(false);
 
+ const [refreshing, setRefreshing] = useState(false);
+ const onRefresh = () => {
+     setRefreshing(true);
+     obterProfissioaisCard();
+     obterCategorias();
+     setTimeout(() => {
+       setRefreshing(false);
+     }, 2000);
+  };
+
+  const obterProfissioaisCard = async () => {
+    try {
+
+      setLoading(true);
+      const response: RequestResponse = await ObterProfissionalCard();
+      setLoading(false);
+
+      if (response.sucess) {
+
+        const listaObjeto: ProfissionalCard[] = response.objeto;
+        setListaProfissionalCard(listaObjeto);
+                      
+        }else{
+          console.log("Erro API: " + response.message);
+        }
+    } catch (error) {
+      console.log("Erro ao obterProfissioaisCard: ", error);
+      setLoading(false);
+    }
+  };
+
+  const obterCategorias = async () => {
+    try {          
+      const response = await GetAllAtivos();
+      // console.log("CATEGORIAS: " + JSON.stringify(response));
+      //  formatarCategoria(response);  
+      setCategorias(response);
+    } catch (error) {
+      console.log("Erro para obter as Categorias", error);
+    }
+  };
+
+  const inicio = async () => {
+  setLoading(true);
+  try {
+    const usuarioStorege = await getUsuario("@usuario");
+    setExisteUsuario(!!usuarioStorege);
+
+    const [responseProf, responseCat] = await Promise.all([
+      ObterProfissionalCard(),
+      GetAllAtivos()
+    ]);
+
+    if (responseProf.sucess) setListaProfissionalCard(responseProf.objeto);
+    setCategorias(responseCat);
+  } catch (error) {
+    console.log("Erro ao carregar dados:", error);
+  } finally {
+    setLoading(false);
+    setTextoCategoria("");
+  }
+};
+
+
   useFocusEffect(
     useCallback(() => {
-      const verificarUsuario = async () => {
-        try {
-          const usuarioStorege = await getUsuario("@usuario");
-          if (usuarioStorege) {
-            console.log("usuarioStorege: " + JSON.stringify(usuarioStorege));
-            setExisteUsuario(true);              
-            }else{
-              console.log("Não achou usuario no storage");
-              setExisteUsuario(false);
-            }
-        } catch (error) {
-          console.log("Erro ao obter usuário do storage:", error);
-        }
-      };
-      verificarUsuario();
-
-      const obterProfissioaisCard = async () => {
-        try {
-
-          setLoading(true);
-          const response: RequestResponse = await ObterProfissionalCard();
-          setLoading(false);
-
-          if (response.sucess) {
-
-            const listaObjeto: ProfissionalCard[] = response.objeto;
-            setListaProfissionalCard(listaObjeto);
-                         
-            }else{
-              console.log("Erro API: " + response.message);
-            }
-        } catch (error) {
-          console.log("Erro ao obterProfissioaisCard: ", error);
-          setLoading(false);
-        }
-      };
-      obterProfissioaisCard();
-
-       const obterCategorias = async () => {
-          try {          
-            const response = await ObterTodos();
-            // console.log("CATEGORIAS: " + JSON.stringify(response));
-            //  formatarCategoria(response);  
-            setCategorias(response);
-          } catch (error) {
-            console.log("Erro para obter as Categorias", error);
-          }
-        };
-      obterCategorias();
-
-      setTextoCategoria("");
-
+      inicio();
     }, [])
   );
 
@@ -123,6 +136,8 @@ const categoriasFiltradas = categorias.filter((item) =>
       <View>
         <Text style={styles.sectionTitle}>Categorias Populares</Text>
         <FlatList
+          refreshing={refreshing}
+          onRefresh={onRefresh}
           data={categoriasFiltradas}
           // keyExtractor={item => String(item.id)}
           horizontal
@@ -142,6 +157,8 @@ const categoriasFiltradas = categorias.filter((item) =>
         <FlatList 
             style={{height: '70%'}}
             data={listaProfissionalCard}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
             keyExtractor={item => String(item.id)}
             renderItem={({item}) => <CardItem item={ item } remover={false}  />}
         /> 

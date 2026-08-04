@@ -17,10 +17,11 @@ import { ProfissionalPerfil } from '../../modelUtils/ProfissionalPerfil';
 import { BASE_URL, URL_IMG_PROFISSIONAL } from '@env'; 
 import { openWhatsApp } from '../../utils/utils';
 import { Favorito } from '../../model/Favorito';
-import { ObterAvaliacaoByProfissional, SalvarAvaliacao } from '../../api/AvaliacaoController';
+import { ObterAvaliacaoByProfissional, SalvarAvaliacao, deleteAvaliacao } from '../../api/AvaliacaoController';
 import { AvaliacaoResponse } from '../../modelUtils/AvaliacaoResponse';
 import { formatarData } from '../../utils/utils';
 import LoadingModal from '../../components/modalPreloader';
+import { ModalConfirmacao } from '../../components/modalConfirmacao';
 
 const sizeImageButton = 20;
 
@@ -32,6 +33,7 @@ export function PerfilProfissional() {
   const { getUsuario }  = useStorege();
   type PerfilProfissionalRouteProp = RouteProp<RootStackParamList, 'PerfilProfissional'>;
   const [loading, setLoading] = useState(false);
+  const [modalConfirmacaoVisible, setModalConfirmacaoVisible] = useState(false);
   
   const [favorito, setFavorito] = useState<Favorito>({
     idusuario: 0,
@@ -118,6 +120,14 @@ useEffect(() => {
           const avaliacaoResponse: AvaliacaoResponse = response.objeto;
           const avaliacoes: Avaliacao[] = avaliacaoResponse.avaliacoes;
 
+
+          const usuarioStorege = await getUsuario("@usuario");
+          const idUsuarioAtual = usuarioStorege?.id || 0;
+
+          avaliacoes.forEach((a) => {
+            a.excluir = (a.idusuario === idUsuarioAtual);
+          });
+
           setProfissionalAtual(prev => ({...prev!, avaliacaoMedia: avaliacaoResponse.estrela}));
           setAvaliacao(avaliacoes);      
             
@@ -191,9 +201,35 @@ useEffect(() => {
     );
 
 
+    async function handleExcluir() {
+        setModalConfirmacaoVisible(false);
+        if(idAvaliacaoExcluir){
+          const response: RequestResponse =  await deleteAvaliacao(idAvaliacaoExcluir);
+          console.log("response deleteAvaliacao: " + JSON.stringify(response));
+          if(response.sucess){
+            console.log("response deleteAvaliacao: " + profissionalAtual?.id + "   -   " + JSON.stringify(response));
+            atualizarAvaliacoes(profissionalAtual?.id || 0);
+          }
+        }
+    }
+
+    const [idAvaliacaoExcluir, setIdAvaliacaoExcluir] = useState<number | null>(null);
+    function modalExcluir(idAvaliacao?: number) {
+      setModalConfirmacaoVisible(true);
+      console.log("idavaliacao: " + idAvaliacao);
+      setIdAvaliacaoExcluir(idAvaliacao || null);
+     }
 
   return (
     <ScrollView style={styles.container}>
+
+          <Modal visible={modalConfirmacaoVisible} animationType='fade' transparent={true}>
+            <ModalConfirmacao mensagem={'Apagar avaliação?'} 
+                              handleConfirmacao={() => handleExcluir()} 
+                              handleClose={() => setModalConfirmacaoVisible(false)} >
+            </ModalConfirmacao>
+          </Modal>
+
       {/* Cabeçalho */}
       <View style={styles.header}>
           <Image 
@@ -274,20 +310,26 @@ useEffect(() => {
 
       {avaliacao.map((a) => (
         <View key={a.id} style={styles.review}>
+          <View style={styles.reviewHeader}>
+            <Text style={styles.reviewNome}>
+              {a.nome} – 
+              {Array.from({ length: a.estrelas }).map((_, o) => (
+                <Icon key={o} name="star" size={20} color="#FFD700" />
+              ))}
+            </Text>
 
-          <Text style={styles.reviewNome}>{a.nome} – 
-          
-          {Array.from({ length: a.estrelas }).map((_, o) => (
-            <Text key={o}><Icon name="star" size={20} color="#FFD700" /></Text>
-          ))}
-
-            {/* {a.estrelas} */}
-          </Text>
+            {a.excluir && (
+              <TouchableOpacity onPress={() => modalExcluir(a.id)}>
+                <Icon name="trash" size={20} color="red" />
+              </TouchableOpacity>
+            )}
+          </View>
 
           <Text style={styles.text}>{a.comentario}</Text>
-          <Text style={styles.reviewTempo}>{a.tempo}</Text>
+          {/* <Text style={styles.reviewTempo}>{a.tempo}</Text> */}
         </View>
       ))}
+
 
       <Text style={styles.note}>
         Ao avaliar, você ajuda outros usuários a escolherem os melhores profissionais.
@@ -326,5 +368,11 @@ const styles = StyleSheet.create({
     height: 160,
     borderRadius: 20,
     marginRight: 12,
-  }
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // nome à esquerda, botão à direita
+    alignItems: 'center',
+    marginBottom: 4,
+  },
 });

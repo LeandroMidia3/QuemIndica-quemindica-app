@@ -80,9 +80,14 @@ export function Busca() {
     }, [])
   );
 
-  const profissionaisFiltradas = listaProfissionalCard.filter((item) =>
-  item.categorias.toLowerCase().includes(textoProfissional.toLowerCase())
-);
+const profissionaisFiltradas = listaProfissionalCard.filter((item) => {
+  const texto = textoProfissional.toLowerCase();
+  return (
+    item.categorias.toLowerCase().includes(texto) ||
+    item.nome.toLowerCase().includes(texto)
+  );
+});
+
 
   
   return (
