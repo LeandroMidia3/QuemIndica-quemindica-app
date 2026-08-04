@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, FlatList, KeyboardAvoidingView, Platform, ImageSourcePropType, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Image, FlatList, 
+  KeyboardAvoidingView, Platform, Keyboard, Modal } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useNavigation } from '@react-navigation/native';
 import { TextInputMask } from 'react-native-masked-text';
@@ -18,7 +19,7 @@ import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
-import { ObterTodos, ObterTodosByProfissional } from "../../api/CategoriaController";
+import { GetAllAtivos, ObterTodosByProfissional } from "../../api/CategoriaController";
 import { UsuarioSave } from '../../modelUtils/UsuarioSave';
 import { formatarData } from '../../utils/utils';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
@@ -58,13 +59,32 @@ const schema = Yup.object().shape({
   descricao: Yup.string().required('Descição é obrigatório'),
   senha: Yup.string().required('Senha é obrigatória').min(6, 'A senha deve ter pelo menos 6 caracteres'),
   confirmaSenha: Yup.string().required('Confirmação de senha é obrigatória').min(6, 'Confirmação de senha deve ter pelo menos 6 caracteres'),
-  disponibilidadeInicio: Yup.string().required('Horário inicial obrigatório'),
-  disponibilidadeFim: Yup.string().required('Horário final obrigatório'),
   // rua: Yup.string().required('Endereço é obrigatório'),
   // numero: Yup.string().required('Obrigatório'),
   bairro: Yup.string().required('Bairro é Obrigatório'),
   cidade: Yup.string().required('Cidade é Obrigatório'),
   estado: Yup.string().required('Obrigatório'),
+
+  disponibilidadeInicio: Yup.string()
+    .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato deve ser HH:mm')
+    .required('Horário inicial obrigatório'),
+
+  disponibilidadeFim: Yup.string()
+    .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato deve ser HH:mm')
+    .required('Horário final obrigatório')
+    .test('is-greater', 'Horário final deve ser maior que o inicial', function(value) {
+      const { disponibilidadeInicio } = this.parent;
+      if (!disponibilidadeInicio || !value) return true;
+
+      // Converter para minutos desde 00:00
+      const [hIni, mIni] = disponibilidadeInicio.split(':').map(Number);
+      const [hFim, mFim] = value.split(':').map(Number);
+
+      const inicioMin = hIni * 60 + mIni;
+      const fimMin = hFim * 60 + mFim;
+
+      return fimMin > inicioMin;
+    }),
 });
 
 
@@ -119,6 +139,7 @@ export function CadastroForm() {
   const [modalMessage, setModalMessage] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [modalConfirmacaoVisible, setModalConfirmacaoVisible] = useState(false);
+  const [secureSenha, setSecureSenha] = useState(true);
   
   const navigation = useNavigation();
 
@@ -297,12 +318,14 @@ export function CadastroForm() {
   //** CATEGORIAS **/
   const [categorias, setCategorias] = useState<number[]>([]);
   const [open, setOpen] = useState(false);
+  const [nomeCategorias, setNomeCategorias] = useState("");
+  
   
   const [listaCategoria, setListaCategoria] = useState<CategoriaCombo[]>([]);
   useEffect(() => {
     const obterCategorias = async () => {
         try {          
-           const response = await ObterTodos();
+           const response = await GetAllAtivos();
            formatarCategoria(response);  
         } catch (error) {
           console.log("Erro para obter as Categorias", error);
@@ -392,6 +415,15 @@ export function CadastroForm() {
 
   async function modalExcluirFotoPrincipal() {
     setModalConfirmacaoVisible(true);
+  }
+
+  async function mostraNomeCategoria(){
+    setOpen(false);
+    setNomeCategorias("");
+    const categoriasSelecionadas = listaCategoria.filter(cat => categorias.includes(cat.value));
+    const nomesCategorias = categoriasSelecionadas.map(cat => cat.label);
+    const nomes =  nomesCategorias.join(", ");
+    setNomeCategorias(nomes);
   }
 
   const formItems = [
@@ -501,6 +533,9 @@ export function CadastroForm() {
           searchable={true}
           listMode="SCROLLVIEW"
         />
+
+        <Text>{nomeCategorias}</Text>
+
         <View style={styles.msgErro}>{validaCategoria && <Text style={styles.textErro}>Selecione pelo menos uma Categoria</Text>}</View>
       </View>
     )},
@@ -659,7 +694,7 @@ export function CadastroForm() {
           />
           </View> 
 
-          <View style={{width: '20%'}}>
+          <View style={{width: '20%', zIndex: 2000}}>
             <Controller
                 control={control}
                 name="estado"
@@ -726,7 +761,7 @@ export function CadastroForm() {
               render={({ field: { onChange, value } }) => (
                 <>
                   <TextInputMask
-                    placeholder="Das"
+                    placeholder="de"
                     type={'datetime'}
                     options={{ format: 'HH:mm' }}
                     value={value}
@@ -748,7 +783,7 @@ export function CadastroForm() {
             render={({ field: { onChange, value } }) => (
               <>
                 <TextInputMask
-                  placeholder="Até"
+                  placeholder="até"
                   type={'datetime'}
                   options={{ format: 'HH:mm' }}
                   value={value}
@@ -772,14 +807,26 @@ export function CadastroForm() {
         name="senha"
         render={({ field: { onChange, value } }) => (
           <>
-            <TextInput
-              style={styles.input}
-              placeholder="Senha"
-              value={value}
-              placeholderTextColor={colors.placeholdertext}
-              onChangeText={onChange}
-              secureTextEntry
-            />
+
+  <View style={styles.inputContainer}>
+      <TextInput
+          style={styles.input2}
+          placeholder="Senha"
+          value={value}
+          placeholderTextColor={colors.placeholdertext}
+          onChangeText={onChange}
+          secureTextEntry={secureSenha}
+      />
+      <TouchableOpacity onPress={() => setSecureSenha(!secureSenha)}>
+        <Icon
+          name={secureSenha ? "remove-red-eye" : "lock"}
+          size={20}
+          color="#666"
+        />
+      </TouchableOpacity>
+    </View>
+
+
             <View style={styles.msgErro}>{errors.senha && <Text style={styles.textErro}>{errors.senha.message}</Text>}</View>
           </>
         )}
@@ -791,14 +838,29 @@ export function CadastroForm() {
         name="confirmaSenha"
         render={({ field: { onChange, value } }) => (
           <>
-            <TextInput
-              style={styles.input}
+
+
+
+  <View style={styles.inputContainer}>
+      <TextInput
+              style={styles.input2}
               placeholder="Confirma Senha"
               value={value}
               placeholderTextColor={colors.placeholdertext}
               onChangeText={onChange}
-              secureTextEntry
-            />
+              secureTextEntry={secureSenha}
+      />
+      <TouchableOpacity onPress={() => setSecureSenha(!secureSenha)}>
+        <Icon
+          name={secureSenha ? "remove-red-eye" : "lock"}
+          size={20}
+          color="#666"
+        />
+      </TouchableOpacity>
+    </View>
+
+
+
             <View style={styles.msgErro}>{errors.confirmaSenha && <Text style={styles.textErro}>{errors.confirmaSenha.message}</Text>}</View>
             <View style={styles.msgErro}>{validaSenha && <Text style={styles.textErro}>As senhas estão diferente</Text>}</View>
           </>
@@ -822,33 +884,51 @@ export function CadastroForm() {
     )},
   ];
 
+
+
   return (
 
-    
 
-    <View style={styles.container}> 
 
-      <Modal visible={modalConfirmacaoVisible} animationType='fade' transparent={true}>
-        <ModalConfirmacao mensagem={'Apagar foto principal?'} 
-                          handleConfirmacao={() => excluirFoto()} 
-                          handleClose={() => setModalConfirmacaoVisible(false)} >
-        </ModalConfirmacao>
-      </Modal>
+      <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+          >
+
+             <TouchableWithoutFeedback
+                onPress={() => { mostraNomeCategoria(); }}
+              >
+
+                  <View style={styles.container}> 
+
+                      <Modal visible={modalConfirmacaoVisible} animationType='fade' transparent={true}>
+                        <ModalConfirmacao mensagem={'Apagar foto principal?'} 
+                                          handleConfirmacao={() => excluirFoto()} 
+                                          handleClose={() => setModalConfirmacaoVisible(false)} >
+                        </ModalConfirmacao>
+                      </Modal>
+                          
+                      <Modal visible={modalVisible} animationType='fade' transparent={true}>
+                          <ModalMensagem handleClose={() => setModalVisible(false)} type={'error'} message={modalMessage} ></ModalMensagem>          
+                      </Modal>
+
+                      <FlatList
+                        data={formItems}
+                        renderItem={({ item }) => item.render()}
+                        keyExtractor={(item) => item.key}
+                        keyboardShouldPersistTaps="handled"
+                        contentContainerStyle={{ paddingBottom: 300 }}
+                        keyboardDismissMode="on-drag"
+                      />
+                  <LoadingModal visible={loading} />
+                  </View>
+
           
-      <Modal visible={modalVisible} animationType='fade' transparent={true}>
-          <ModalMensagem handleClose={() => setModalVisible(false)} type={'error'} message={modalMessage} ></ModalMensagem>          
-      </Modal>
+          </TouchableWithoutFeedback>
 
-      <FlatList
-        data={formItems}
-        renderItem={({ item }) => item.render()}
-        keyExtractor={(item) => item.key}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingBottom: 300 }}
-        keyboardDismissMode="on-drag"
-      />
-<LoadingModal visible={loading} />
-   </View>
+      </KeyboardAvoidingView>
+
 
 
   );
@@ -872,7 +952,6 @@ categoryCard: {
     flex: 1,
     backgroundColor: '#FFF',
     padding: 16,
-    paddingBottom: 20,
   },
   title: {
     fontSize: 20,
@@ -978,5 +1057,18 @@ categoryCard: {
     borderRadius: 6,
     alignItems: 'center',
     marginHorizontal: 4,
+  },
+   inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+  },
+  input2: {
+    flex: 1,
+    height: 40,
+    color: "#000",
   },
 });

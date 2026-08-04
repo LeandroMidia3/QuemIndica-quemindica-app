@@ -16,6 +16,7 @@ import { RequestResponse } from '../../modelUtils/RequestResponse';
 import useStorege from '../../hooks/useStorege';
 import { useUserStore } from '../../utils/userStore';
 import LoadingModal from '../../components/modalPreloader';
+import Icon from "react-native-vector-icons/FontAwesome";
 
 interface UsuarioForm {
   nome: string;
@@ -42,6 +43,7 @@ export function CadastroUsuarioForm() {
   const { setExisteUsuario } = useUserStore();
   const [modalMessage, setModalMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [secureSenha, setSecureSenha] = useState(true);
 
   const { control, handleSubmit, setValue, formState: { errors } } = useForm<UsuarioForm>({
     resolver: yupResolver(schema),
@@ -184,14 +186,21 @@ export function CadastroUsuarioForm() {
         name="senha"
         render={({ field: { onChange, value } }) => (
           <>
-          <TextInput
-            style={styles.input}
-            placeholder="Senha"
-            value={value}
-            placeholderTextColor={colors.placeholdertext}
-            onChangeText={onChange}
-            secureTextEntry
-          />
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.inputSenha}
+          placeholder="Senha"
+          value={value}
+          placeholderTextColor={colors.placeholdertext}
+          onChangeText={onChange}
+          secureTextEntry={secureSenha}
+        />
+        <TouchableOpacity onPress={() => setSecureSenha(!secureSenha)}>
+          <Icon name={secureSenha ? "eye-slash" : "eye"} size={20} color="#666" />
+        </TouchableOpacity>
+      </View>
+
             <View style={styles.msgErro}>{errors.senha && <Text style={styles.textErro}>{errors.senha.message}</Text>}</View>
           </>
         )}
@@ -202,14 +211,24 @@ export function CadastroUsuarioForm() {
         name="confirmaSenha"
         render={({ field: { onChange, value } }) => (
           <>
-          <TextInput
-            style={styles.input}
+
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.inputSenha}
             placeholder="Confirma Senha"
             value={value}
             placeholderTextColor={colors.placeholdertext}
             onChangeText={onChange}
-            secureTextEntry
-            />
+          secureTextEntry={secureSenha}
+        />
+        <TouchableOpacity onPress={() => setSecureSenha(!secureSenha)}>
+          <Icon name={secureSenha ? "eye-slash" : "eye"} size={20} color="#666" />
+        </TouchableOpacity>
+      </View>
+
+
+
             <View style={styles.msgErro}>{errors.confirmaSenha && <Text style={styles.textErro}>{errors.confirmaSenha.message}</Text>}</View>
             <View style={styles.msgErro}>{validaSenha && <Text style={styles.textErro}>As senhas estão diferente</Text>}</View>
           </>
@@ -291,5 +310,21 @@ const styles = StyleSheet.create({
   },
   msgErro: {
     marginBottom: 12,
-  }
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#CCC",
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    backgroundColor: "#F9F9F9",
+    marginBottom: 5,
+  },
+  inputSenha: {
+    flex: 1,
+    height: 40,
+    fontSize: 16,
+    color: colors.text,
+  },
 });

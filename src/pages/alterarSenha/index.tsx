@@ -18,6 +18,7 @@ import { useUserStore } from '../../utils/userStore';
 import LoadingModal from '../../components/modalPreloader';
 import { SenhaForm } from '../../modelUtils/SenhaForm';
 import { AlterarNovaSenha } from "../../api/UsuarioController";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const schema = Yup.object().shape({
   senhaAtual: Yup.string().required('Senha é obrigatória').min(6, 'A senha deve ter pelo menos 6 caracteres'),
@@ -37,6 +38,7 @@ export function AlterarSenha() {
   const [modalMessage, setModalMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [typer, setTyper] = useState("error");
+  const [secureSenha, setSecureSenha] = useState(true);
 
   const { control, handleSubmit, setValue, formState: { errors } } = useForm<SenhaForm>({
     resolver: yupResolver(schema),
@@ -142,98 +144,143 @@ function fecharModal(){
   }
   
   return (
-    
-    <ScrollView style={styles.container}>
 
-      <Modal visible={modalVisible} animationType='fade' transparent={true}>
-        <ModalMensagem handleClose={() => fecharModal()} type={typer} message={modalMessage} ></ModalMensagem>
-      </Modal>
+    <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+      >
+          
+          <ScrollView style={styles.container}>
 
-      {/* Header com logo e saudação */}
-      <View style={styles.header}>
-        <Image source={require('../../assets/image/logo.png')} style={[globalStyles.logo]} />
-      </View>
+            <Modal visible={modalVisible} animationType='fade' transparent={true}>
+              <ModalMensagem handleClose={() => fecharModal()} type={typer} message={modalMessage} ></ModalMensagem>
+            </Modal>
 
-    <View>
-        <View style={styles.infoCard}>
-            <Text style={styles.value}>{usuario?.nome}</Text>
-        </View>
-    
-        <View style={styles.infoCard}>
-            <Text style={styles.value}>{usuario?.email}</Text>
-        </View>
-    </View>
+            {/* Header com logo e saudação */}
+            <View style={styles.header}>
+              <Image source={require('../../assets/image/logo.png')} style={[globalStyles.logo]} />
+            </View>
 
-      <Controller
-        control={control}
-        name="senhaAtual"
-        render={({ field: { onChange, value } }) => (
-          <>
-          <TextInput
-            style={styles.input}
-            placeholder="Senha atual"
-            value={value}
-            placeholderTextColor={colors.placeholdertext}
-            onChangeText={onChange}
-            secureTextEntry
-          />
-            <View style={styles.msgErro}>{errors.senhaAtual && <Text style={styles.textErro}>{errors.senhaAtual.message}</Text>}</View>
-          </>
-        )}
-      />
+          <View>
+              <View style={styles.infoCard}>
+                  <Text style={styles.value}>{usuario?.nome}</Text>
+              </View>
+          
+              <View style={styles.infoCard}>
+                  <Text style={styles.value}>{usuario?.email}</Text>
+              </View>
+          </View>
 
-      <Controller
-        control={control}
-        name="senhaNova"
-        render={({ field: { onChange, value } }) => (
-          <>
-          <TextInput
-            style={styles.input}
-            placeholder="Senha nova"
-            value={value}
-            placeholderTextColor={colors.placeholdertext}
-            onChangeText={onChange}
-            secureTextEntry
+            <Controller
+              control={control}
+              name="senhaAtual"
+              render={({ field: { onChange, value } }) => (
+                <>
+            <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input2}
+                  placeholder="Senha atual"
+                  value={value}
+                  placeholderTextColor={colors.placeholdertext}
+                  onChangeText={onChange}
+                  secureTextEntry={secureSenha}
+                />
+                <TouchableOpacity onPress={() => setSecureSenha(!secureSenha)}>
+                  <Icon
+                    name={secureSenha ? "remove-red-eye" : "lock"}
+                    size={20}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+
+                  <View style={styles.msgErro}>{errors.senhaAtual && <Text style={styles.textErro}>{errors.senhaAtual.message}</Text>}</View>
+                </>
+              )}
             />
-            <View style={styles.msgErro}>{errors.senhaNova && <Text style={styles.textErro}>{errors.senhaNova.message}</Text>}</View>
-            <View style={styles.msgErro}>{validaSenha && <Text style={styles.textErro}>As senhas estão diferente</Text>}</View>
-          </>
-        )}
-      />
 
-      <Controller
-        control={control}
-        name="senhaConfirma"
-        render={({ field: { onChange, value } }) => (
-          <>
-          <TextInput
-            style={styles.input}
-            placeholder="Confirma Senha"
-            value={value}
-            placeholderTextColor={colors.placeholdertext}
-            onChangeText={onChange}
-            secureTextEntry
+            <Controller
+              control={control}
+              name="senhaNova"
+              render={({ field: { onChange, value } }) => (
+                <>
+
+
+            <View style={styles.inputContainer}>
+                <TextInput
+                style={styles.input2}
+                  placeholder="Senha nova"
+                  value={value}
+                  placeholderTextColor={colors.placeholdertext}
+                  onChangeText={onChange}
+                  secureTextEntry={secureSenha}
+                />
+                <TouchableOpacity onPress={() => setSecureSenha(!secureSenha)}>
+                  <Icon
+                    name={secureSenha ? "remove-red-eye" : "lock"}
+                    size={20}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+
+
+
+                  <View style={styles.msgErro}>{errors.senhaNova && <Text style={styles.textErro}>{errors.senhaNova.message}</Text>}</View>
+                  <View style={styles.msgErro}>{validaSenha && <Text style={styles.textErro}>As senhas estão diferente</Text>}</View>
+                </>
+              )}
             />
-            <View style={styles.msgErro}>{errors.senhaConfirma && <Text style={styles.textErro}>{errors.senhaConfirma.message}</Text>}</View>
-            <View style={styles.msgErro}>{validaSenha && <Text style={styles.textErro}>As senhas estão diferente</Text>}</View>
-          </>
-        )}
-      />
 
-      <View style={styles.buttonsRow}>
-        <TouchableOpacity style={[styles.button, styles.cancel]} onPress={() => navigation.goBack()}>
-          <Text style={styles.buttonText}>Cancelar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.save]} onPress={handleSubmit(onSubmit)}>
-          <Text style={styles.buttonText}>Alterar Senha</Text>
-        </TouchableOpacity>
-      </View>
+            <Controller
+              control={control}
+              name="senhaConfirma"
+              render={({ field: { onChange, value } }) => (
+                <>
 
-      <Text style={styles.terms}>
-        Ao cadastrar-se, você concorda com os Termos de Uso e Política de Privacidade.
-      </Text>
-<LoadingModal visible={loading} />
-    </ScrollView> 
+            <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input2}
+                  placeholder="Confirma Senha"
+                  value={value}
+                  placeholderTextColor={colors.placeholdertext}
+                  onChangeText={onChange}
+                  secureTextEntry={secureSenha}
+                />
+                <TouchableOpacity onPress={() => setSecureSenha(!secureSenha)}>
+                  <Icon
+                    name={secureSenha ? "remove-red-eye" : "lock"}
+                    size={20}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+
+
+
+                  <View style={styles.msgErro}>{errors.senhaConfirma && <Text style={styles.textErro}>{errors.senhaConfirma.message}</Text>}</View>
+                  <View style={styles.msgErro}>{validaSenha && <Text style={styles.textErro}>As senhas estão diferente</Text>}</View>
+                </>
+              )}
+            />
+
+            <View style={styles.buttonsRow}>
+              <TouchableOpacity style={[styles.button, styles.cancel]} onPress={() => navigation.goBack()}>
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.button, styles.save]} onPress={handleSubmit(onSubmit)}>
+                <Text style={styles.buttonText}>Alterar Senha</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.terms}>
+              Ao cadastrar-se, você concorda com os Termos de Uso e Política de Privacidade.
+            </Text>
+      <LoadingModal visible={loading} />
+          </ScrollView> 
+
+    </KeyboardAvoidingView>
 
   );
 }
@@ -306,5 +353,18 @@ const styles = StyleSheet.create({
   value: {
     color: '#555',
     marginTop: 5,
+  },
+   inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+  },
+  input2: {
+    flex: 1,
+    height: 40,
+    color: "#000",
   },
 });

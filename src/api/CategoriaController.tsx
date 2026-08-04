@@ -12,9 +12,9 @@ export async function ObterCategoria(id: number) {
   return response.json();
 }
 
-export async function ObterTodos() {
+export async function GetAllAtivos() {
   console.log("ObterTodos categorias");
-  const response = await fetch(`${BASE_URL}/Categoria/ObterTodos`, {
+  const response = await fetch(`${BASE_URL}/Categoria/ObterTodosAtivos`, {
     method: "GET",
   });
   return response.json();

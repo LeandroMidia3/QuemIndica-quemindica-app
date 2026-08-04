@@ -50,3 +50,35 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 13 - Colocar contador para a quantidade de vezes que clicaram no Perfil
 
 
+
+--*********  LISTA  ***********--
+1 - Quantidade de cliques nos prifissionais para selecionar os mais indicados
+9 - Ver de não piscar as imagens quando recarregar a tela
+10 - ver a tela de splash que está cortada
+14 - ver a opçao de clicar no card pra abrir o perfil do profissional
+16 - Fazer algum padrão para a senha do app
+17 - na Edição de Perfil ver pq não consegue mudar de email
+18 - opção do usuário poder excluir o usuário (Desativar)
+
+
+--*********  TRABALHANDO  ***********--
+
+
+
+--*********  FEITO  ***********--
+
+1 - Hora no cadastro do profissional não foi obrigatório
+6 - formatar a hora de atendimento para não colocar hora aleatória
+8 - No atlerar senha, quando alterou e clicou no modal a tela continuou na mesmoa, não foi pra tela de perfil
+1 - Cadastro descer a tela para mostrar o botão com o fomulário, alterar senha
+2 - as categorias estao aparecendo mesmo as desativadas
+3 - quando marca a categoria as vezes não aparece
+12 - arrastar para baixo para atualizar
+15 - quando recuperar a senha mostrar a modal informando que irá receber um email de recuperação  --- CONFIRMAR QUE RECEBEU O EMAIL
+16 - Ao cicar fora da combo de categoria não está fechando a combo
+5 - o UF está aparecendo emcima da combo categoria quando abre a categoria
+4 - Mostrar o nome das categorias em cima para ver o que foi selecionado
+7 - Botar botão para mostrar senha ou mostrar pelo menos a última cadastrada
+13 - Na pesquisa de profissionais buscar tanto pela categoria quanto pelo nome do profissional
+11 - Excluir a avaliação pelo próprio usuário que cadastrou
+
