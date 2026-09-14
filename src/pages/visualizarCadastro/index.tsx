@@ -11,6 +11,7 @@ import type { StackNavigationProp } from "@react-navigation/stack";
 import { useUserStore } from '../../utils/userStore';
 import { useFocusEffect } from '@react-navigation/native';
 import { Perfil } from '../../components/enum/Perfil';
+import { Linking } from 'react-native';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
 
@@ -73,6 +74,14 @@ useFocusEffect(
       }
     }
 
+  function compartilharApp() {
+    const mensagem = 'Olá! Quero te recomendar este aplicativo que estou usando. É feito para profissionais e o cadastro é bem fácil. https://play.google.com/store/apps/details?id=com.amazon.amazonvideo.livingroom';
+    const url = `whatsapp://send?text=${encodeURIComponent(mensagem)}`;
+
+    Linking.openURL(url).catch(() => {
+      console.log('WhatsApp não está instalado');
+    });
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -110,6 +119,10 @@ useFocusEffect(
 
       <TouchableOpacity style={styles.btnMudarSenha} onPress={() => navigation.navigate('AlterarSenha')}>
         <Text style={styles.link}>Alterar minha senha</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.buttonCompartilhar} onPress={compartilharApp}>
+        <Text style={styles.buttonText}>Compartilhar Aplicativo</Text>
       </TouchableOpacity>
       
     </ScrollView>
@@ -184,5 +197,13 @@ const styles = StyleSheet.create({
   },
   btnMudarSenha: {
     alignItems: 'center',
-  }
+     paddingBottom: 100,
+  },
+  buttonCompartilhar: {
+    width: '100%',
+    backgroundColor: '#352da9',
+    borderRadius: 10,
+    padding: 15,
+    alignItems: 'center',
+  },
 });
