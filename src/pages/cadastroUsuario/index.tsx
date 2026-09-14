@@ -17,6 +17,10 @@ import useStorege from '../../hooks/useStorege';
 import { useUserStore } from '../../utils/userStore';
 import LoadingModal from '../../components/modalPreloader';
 import Icon from "react-native-vector-icons/FontAwesome";
+import type { StackNavigationProp } from '@react-navigation/stack';
+import type { RootStackParamList } from '../routes/types';
+
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 interface UsuarioForm {
   nome: string;
@@ -34,7 +38,7 @@ const schema = Yup.object().shape({
 
 export function CadastroUsuarioForm() {
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
 
   const[usuario, setUsuario] = useState<Usuario>();
   const[validaSenha, setValidaSenha] = useState(false);
@@ -244,8 +248,21 @@ export function CadastroUsuarioForm() {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.terms}>
-        Ao cadastrar-se, você concorda com os Termos de Uso e Política de Privacidade.
+       <Text style={styles.termos}>
+        Ao cadastrar-se, você concorda com os{' '}
+        <Text
+          style={styles.link}
+          onPress={() => navigation.navigate('TermosDeUso')}
+        >
+          Termos de Uso
+        </Text>{' '}
+        e{' '}
+        <Text
+          style={styles.link}
+          onPress={() => navigation.navigate('PoliticaPrivacidade')}
+        >
+          Política de Privacidade
+        </Text>.
       </Text>
 <LoadingModal visible={loading} />
     </ScrollView> 
@@ -326,5 +343,15 @@ const styles = StyleSheet.create({
     height: 40,
     fontSize: 16,
     color: colors.text,
+  },
+  termos: {
+    fontSize: 14,
+    color: '#333',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  link: {
+    color: '#0066cc',
+    textDecorationLine: 'underline',
   },
 });

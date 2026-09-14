@@ -77,3 +77,19 @@ export async function ObterByFavoritosByUsuario(id: number) {
   });
   return response.json();
 }
+
+export async function updateCliques(id: number) {
+   const response = await fetch(`${BASE_URL}/Profissional/updateCliques/${id}`, {
+     method: 'PUT',
+     headers: { 'Content-Type': 'application/json' }
+   });
+   return response.json();
+}
+
+export async function ObterProfissionalClicados() {
+  console.log("ObterProfissionalClicados");
+  const response = await fetch(`${BASE_URL}/Profissional/ObterClicados`, {
+    method: "GET",
+  });
+  return response.json();
+}

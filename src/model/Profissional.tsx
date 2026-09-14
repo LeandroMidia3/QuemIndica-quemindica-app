@@ -3,6 +3,7 @@ import { Usuario } from './Usuario';
 import { Categoria } from './Categoria';
 import { Portifolio } from './Portifolio';
 import { Float } from 'react-native/Libraries/Types/CodegenTypes';
+import { Status } from '../components/enum/Status';
 
 export interface Profissional {
     id?: number;
@@ -26,4 +27,5 @@ export interface Profissional {
     cidade: string;
     latitude: string;
     idusuario?: number;
+    status?: Status;
 }

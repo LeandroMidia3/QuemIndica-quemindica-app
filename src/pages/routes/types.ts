@@ -8,4 +8,6 @@ export type RootStackParamList = {
   Busca: {nome: string};
   EsqueciSenha: undefined;
   AlterarSenha: undefined;
+  TermosDeUso: undefined;
+  PoliticaPrivacidade: undefined;
 };
