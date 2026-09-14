@@ -54,12 +54,12 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 14 - ver a opçao de clicar no card pra abrir o perfil do profissional
 16 - Fazer algum padrão para a senha do app
 17 - na Edição de Perfil ver pq não consegue mudar de email -- precisa mudar de email
-18 - Criar botão de compartilhamento do usuário para um profissional ainda não cadastrado
+
 
 
 --*********  TRABALHANDO  ***********--
 
-18 - opção do usuário poder excluir o usuário (Desativar)
+
 
 --*********  FEITO  ***********--
 
@@ -81,3 +81,6 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 1 - Quantidade de cliques nos prifissionais para selecionar os mais indicados
 1 - Profissional pode ativar ou desativar o Profissional
 2 - Link para termos de uso e termos de privacidade
+18 - opção do usuário poder excluir o usuário (Desativar)
+19 - Criar botão de compartilhamento do usuário para um profissional ainda não cadastrado
+
