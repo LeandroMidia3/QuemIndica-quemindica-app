@@ -17,6 +17,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useUserStore } from '../../utils/userStore';
 import { AlterarSenha } from "../alterarSenha";
+import { TermosDeUso } from '../terms';
+import { PoliticaPrivacidade } from '../politica';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -219,7 +221,29 @@ export function Routes() {
             } } 
       />
 
-      
+    <Stack.Screen 
+        name="TermosDeUso" 
+        component={TermosDeUso} 
+        options={{ 
+            title: 'Termos de Uso', 
+            headerTintColor: '#FFF', 
+            headerStyle: { 
+                    backgroundColor: colors.background
+                } 
+            } } 
+      />
+
+    <Stack.Screen 
+        name="PoliticaPrivacidade" 
+        component={PoliticaPrivacidade} 
+        options={{ 
+            title: 'Política de Privacidade', 
+            headerTintColor: '#FFF', 
+            headerStyle: { 
+                    backgroundColor: colors.background
+                } 
+            } } 
+      />
 
     </Stack.Navigator>
   );

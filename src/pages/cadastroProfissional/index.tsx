@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Image, FlatList, 
-  KeyboardAvoidingView, Platform, Keyboard, Modal } from 'react-native';
+  KeyboardAvoidingView, Platform, Switch, Modal } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useNavigation } from '@react-navigation/native';
 import { TextInputMask } from 'react-native-masked-text';
@@ -31,6 +31,10 @@ import { URL_IMG_PROFISSIONAL } from '@env';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ModalConfirmacao } from '../../components/modalConfirmacao';
 import LoadingModal from '../../components/modalPreloader';
+import type { StackNavigationProp } from '@react-navigation/stack';
+import type { RootStackParamList } from '../routes/types';
+
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 
 interface ProfissionalForm {
@@ -49,6 +53,7 @@ interface ProfissionalForm {
   bairro: string;
   cidade: string;
   estado: string;
+  // status: string;
 }
 
 const schema = Yup.object().shape({
@@ -64,6 +69,7 @@ const schema = Yup.object().shape({
   bairro: Yup.string().required('Bairro é Obrigatório'),
   cidade: Yup.string().required('Cidade é Obrigatório'),
   estado: Yup.string().required('Obrigatório'),
+  // status: Yup.string().required('Obrigatório'),
 
   disponibilidadeInicio: Yup.string()
     .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato deve ser HH:mm')
@@ -141,7 +147,7 @@ export function CadastroForm() {
   const [modalConfirmacaoVisible, setModalConfirmacaoVisible] = useState(false);
   const [secureSenha, setSecureSenha] = useState(true);
   
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
 
   const escolherImagem = () => {
     try{
@@ -251,8 +257,9 @@ export function CadastroForm() {
         estado: data.estado,
         cidade: data.cidade,
         latitude: "",
+        status: isEnabled ? Status.Ativo : Status.Inativo,
       };
-    
+
       salvaProfissaoApi(newProfissional);
   };
 
@@ -359,6 +366,7 @@ export function CadastroForm() {
           setValue("descricao", objetoProfissional.objeto.descricao);
           setValue("disponibilidadeInicio", objetoProfissional.objeto.disponibilidadeInicio);
           setValue("disponibilidadeFim", objetoProfissional.objeto.disponibilidadeFim);
+          setIsEnabled(objetoProfissional.objeto.status === Status.Ativo);
 
           obterCategoriasByProfissional(profissional.idprofissional);
           setLoading(false);
@@ -425,6 +433,11 @@ export function CadastroForm() {
     const nomes =  nomesCategorias.join(", ");
     setNomeCategorias(nomes);
   }
+
+  const [isEnabled, setIsEnabled] = useState(true);
+  const toggleSwitch = () => {
+    setIsEnabled(previousState => !previousState);
+  };
 
   const formItems = [
     { key: 'logo', render: () => (
@@ -867,6 +880,23 @@ export function CadastroForm() {
         )}
       />
     )},
+    { key: 'status', render: () => (
+      <View style={[{ flexDirection: 'row', alignItems: 'center', paddingLeft: 10, paddingRight: 10, paddingBottom: 10 }]}>
+        <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
+          <Text>{isEnabled ? 'Conta Ativa' : 'Conta Desativada'}</Text>
+        </View>
+
+        <View style={{flexDirection: 'row', justifyContent: 'flex-end', flex: 1}}>
+          <Switch
+            trackColor={{ false: '#b9b6bd', true: '#b9b6bd' }}
+            thumbColor={isEnabled ? '#25D366' : '#E74C3C'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleSwitch}
+            value={isEnabled}
+          />
+        </View>
+      </View>
+    )},
     { key: 'botoes', render: () => (
       <View style={styles.buttonsRow}>
         <TouchableOpacity style={[styles.button, styles.cancel]} onPress={() => navigation.goBack()}>
@@ -878,8 +908,21 @@ export function CadastroForm() {
       </View>
     )},
     { key: 'termos', render: () => (
-      <Text style={styles.terms}>
-        Ao cadastrar-se, você concorda com os Termos de Uso e Política de Privacidade.
+       <Text style={styles.termos}>
+        Ao cadastrar-se, você concorda com os{' '}
+        <Text
+          style={styles.link}
+          onPress={() => navigation.navigate('TermosDeUso')}
+        >
+          Termos de Uso
+        </Text>{' '}
+        e{' '}
+        <Text
+          style={styles.link}
+          onPress={() => navigation.navigate('PoliticaPrivacidade')}
+        >
+          Política de Privacidade
+        </Text>.
       </Text>
     )},
   ];
@@ -887,8 +930,6 @@ export function CadastroForm() {
 
 
   return (
-
-
 
       <KeyboardAvoidingView
             style={{ flex: 1 }}
@@ -928,8 +969,6 @@ export function CadastroForm() {
           </TouchableWithoutFeedback>
 
       </KeyboardAvoidingView>
-
-
 
   );
 }
@@ -1070,5 +1109,15 @@ categoryCard: {
     flex: 1,
     height: 40,
     color: "#000",
+  },
+  termos: {
+    fontSize: 14,
+    color: '#333',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  link: {
+    color: '#0066cc',
+    textDecorationLine: 'underline',
   },
 });

@@ -7,7 +7,7 @@ import { Portifolio } from '../../model/Portifolio';
 import { useUserStore } from '../../utils/userStore';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import useStorege from '../../hooks/useStorege';
-import { ObterProfissionalCard } from '../../api/ProfissionalController';
+import { ObterProfissionalClicados, ObterProfissionalCard } from '../../api/ProfissionalController';
 import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
 import { RequestResponse } from '../../modelUtils/RequestResponse';
 import { Categoria } from '../../model/Categoria';
@@ -52,7 +52,7 @@ export function Home() {
     try {
 
       setLoading(true);
-      const response: RequestResponse = await ObterProfissionalCard();
+      const response: RequestResponse = await ObterProfissionalClicados();
       setLoading(false);
 
       if (response.sucess) {
@@ -87,7 +87,7 @@ export function Home() {
     setExisteUsuario(!!usuarioStorege);
 
     const [responseProf, responseCat] = await Promise.all([
-      ObterProfissionalCard(),
+      ObterProfissionalClicados(),
       GetAllAtivos()
     ]);
 

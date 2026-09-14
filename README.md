@@ -42,28 +42,24 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 1 - Ver como levar a imagem do aplicativo para a pasta no servidor  pasta "IdUsuario/foto_1.jpg", uma pasta pro usuário no servidor máximo 3 fotos de Portifólio
 1.2 - Aparecer foto do Portifólio assim que adicionar                           --
 
-
-7 - Criar as APIs no projeto API
 8 - Criar na API uma site Admin para cadastro e relatórios
 
 10 - Ajustar as cores do Aplicativo e o header
 13 - Colocar contador para a quantidade de vezes que clicaram no Perfil
 
 
-
 --*********  LISTA  ***********--
-1 - Quantidade de cliques nos prifissionais para selecionar os mais indicados
 9 - Ver de não piscar as imagens quando recarregar a tela
 10 - ver a tela de splash que está cortada
 14 - ver a opçao de clicar no card pra abrir o perfil do profissional
 16 - Fazer algum padrão para a senha do app
-17 - na Edição de Perfil ver pq não consegue mudar de email
-18 - opção do usuário poder excluir o usuário (Desativar)
+17 - na Edição de Perfil ver pq não consegue mudar de email -- precisa mudar de email
+18 - Criar botão de compartilhamento do usuário para um profissional ainda não cadastrado
 
 
 --*********  TRABALHANDO  ***********--
 
-
+18 - opção do usuário poder excluir o usuário (Desativar)
 
 --*********  FEITO  ***********--
 
@@ -82,3 +78,6 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 13 - Na pesquisa de profissionais buscar tanto pela categoria quanto pelo nome do profissional
 11 - Excluir a avaliação pelo próprio usuário que cadastrou
 
+1 - Quantidade de cliques nos prifissionais para selecionar os mais indicados
+1 - Profissional pode ativar ou desativar o Profissional
+2 - Link para termos de uso e termos de privacidade

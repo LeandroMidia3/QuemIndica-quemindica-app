@@ -11,6 +11,8 @@ import { ProfissionalCard } from '../../modelUtils/ProfissionalCard';
 import { BASE_URL, URL_IMG_PROFISSIONAL } from '@env'; 
 import { openWhatsApp } from '../../utils/utils';
 
+import { updateCliques } from '../../api/ProfissionalController';
+
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
 
@@ -25,6 +27,13 @@ const sizeImageButton = 20;
 export function CardItem({ item, remover, onHandlerFavoritar }: CardItemProps) {
 
  const navigation = useNavigation<NavigationProp>();
+
+ function handleVerPerfil(item: ProfissionalCard) {
+    const result = updateCliques(item.id);
+    navigation.navigate('PerfilProfissional', { id: item.id });
+ }
+
+
 
   return (
 
@@ -58,7 +67,9 @@ export function CardItem({ item, remover, onHandlerFavoritar }: CardItemProps) {
 
       <TouchableOpacity 
         style={[styles.verPerfil, styles.buttons]} 
-        onPress={() => navigation.navigate('PerfilProfissional', { id: item.id})}>
+        onPress={() => {
+          handleVerPerfil(item);
+        }}>
         <Icon name="user" size={sizeImageButton} color="#FFF" />
       </TouchableOpacity>
 
