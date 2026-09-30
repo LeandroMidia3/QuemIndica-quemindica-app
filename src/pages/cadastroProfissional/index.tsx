@@ -277,6 +277,8 @@ export function CadastroForm() {
         response = await SalvarProfissional(item);
       }
   
+      console.log("response: " + JSON.stringify(response));
+
       setLoading(false);
        if(response.sucess){
           console.log("salvaProfissaoApi ENTROU");
@@ -364,8 +366,9 @@ export function CadastroForm() {
           setValue("telefone", objetoProfissional.objeto.telefone);
           setValue("estado", objetoProfissional.objeto.estado);
           setValue("descricao", objetoProfissional.objeto.descricao);
-          setValue("disponibilidadeInicio", objetoProfissional.objeto.disponibilidadeInicio);
-          setValue("disponibilidadeFim", objetoProfissional.objeto.disponibilidadeFim);
+          setValue("disponibilidadeInicio", objetoProfissional.objeto.disponibilidadeinicio);
+          setValue("disponibilidadeFim", objetoProfissional.objeto.disponibilidadefim);
+
           setIsEnabled(objetoProfissional.objeto.status === Status.Ativo);
 
           obterCategoriasByProfissional(profissional.idprofissional);
