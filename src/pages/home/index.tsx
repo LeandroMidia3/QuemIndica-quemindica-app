@@ -58,6 +58,7 @@ export function Home() {
       if (response.sucess) {
 
         const listaObjeto: ProfissionalCard[] = response.objeto;
+        console.log("Lista de Profissionais Card: ", listaObjeto);
         setListaProfissionalCard(listaObjeto);
                       
         }else{

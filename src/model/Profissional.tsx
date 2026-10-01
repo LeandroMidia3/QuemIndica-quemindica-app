@@ -10,7 +10,7 @@ export interface Profissional {
     usuario?: any;
     categorias: number[];
     descricao: string;
-    uriImagemPrincipal?: string;
+    uriimagemprincipal?: string;
     imagemPortifolios?: Portifolio[];
     telefone: string;
     disponibilidadeInicio: string;
