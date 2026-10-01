@@ -9,7 +9,7 @@ export interface ProfissionalPerfil {
     bairro: string;
     avaliacaoMedia: Float;
     categorias: string;
-    uriImagemPrincipal: string;
+    uriimagemprincipal: string;
     servico: string;
     servicos: string[];
     descricao: string;

@@ -38,7 +38,7 @@ type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 
 interface ProfissionalForm {
-  // uriImagemPrincipal: ImageSourcePropType;
+  // uriimagemprincipal: ImageSourcePropType;
   nome: string;
   email: string;
   servico: string; 
@@ -156,7 +156,7 @@ export function CadastroForm() {
             (response) => {
                 if (response.assets && response.assets.length > 0) {
                     const asset: any = response.assets[0];
-                    // const profissionaAsset: ProfissionalForm = {uriImagemPrincipal: asset};
+                    // const profissionaAsset: ProfissionalForm = {uriimagemprincipal: asset};
                     setFotoPrincipal(asset);
                 }
             }
@@ -242,7 +242,7 @@ export function CadastroForm() {
         usuario: newUsuario,
         categorias: categorias,
         descricao: data.descricao,
-        uriImagemPrincipal: profissional?.uriImagemPrincipal,   
+        uriimagemprincipal: profissional?.uriimagemprincipal,   
         imagemPortifolios: [],  //TODO: VER COMO PASSAR AS IMAGENS
         telefone: data.telefone,
         disponibilidadeInicio: data.disponibilidadeInicio,
@@ -419,7 +419,7 @@ export function CadastroForm() {
       console.log("excluirFoto: " + profissional.id);
       const response = await deleteFoto(profissional.id);
       console.log("EXCLUIR FOTO: " + JSON.stringify(response));
-      setProfissional({ ...profissional, uriImagemPrincipal: '' });
+      setProfissional({ ...profissional, uriimagemprincipal: '' });
       setModalConfirmacaoVisible(false)
     }
   }
@@ -467,15 +467,15 @@ export function CadastroForm() {
     }
 
       <View style={styles.fotoPrincipal}>
-        {profissional?.uriImagemPrincipal && !fotoPrincipal &&
+        {profissional?.uriimagemprincipal && !fotoPrincipal &&
             <Image
-            source={{uri: `${URL_IMG_PROFISSIONAL}/${profissional?.uriImagemPrincipal}?t=${Date.now()}`}}
+            source={{uri: `${URL_IMG_PROFISSIONAL}/${profissional?.uriimagemprincipal}?t=${Date.now()}`}}
             style={styles.preview}
             />
         }
         </View>
 
-        {profissional?.uriImagemPrincipal && !fotoPrincipal &&
+        {profissional?.uriimagemprincipal && !fotoPrincipal &&
             <View style={styles.excluifoto}>
                 <TouchableOpacity style={[styles.buttonremover, styles.cancel]} onPress={modalExcluirFotoPrincipal}>
                     <Text style={styles.buttonText}><Icon name="delete" size={17} color="#FFF" />  Apagar</Text>

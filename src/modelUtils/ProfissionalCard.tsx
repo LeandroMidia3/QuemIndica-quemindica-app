@@ -8,5 +8,5 @@ export interface ProfissionalCard {
     estado: string;
     avaliacaoMedia: Float;
     categorias: string;
-    uriImagemPrincipal: string;
+    uriimagemprincipal: string;
 }
